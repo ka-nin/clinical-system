@@ -1,0 +1,8 @@
+{% extends "_error_base.html" %}
+{% block page_title %}Page not found{% endblock %}
+{% block card %}
+<span class="reg__pill">NOT FOUND</span>
+<h1>We couldn't find that page</h1>
+<p class="reg__lead">The link may be old (for example, the record was removed when demo data was reset) or mistyped.</p>
+<a href="{% if request.user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'home' %}{% endif %}" class="reg__submit reg__submit--link">{% if request.user.is_authenticated %}Go to my home page{% else %}Go to the home page{% endif %}</a>
+{% endblock %}

@@ -36,6 +36,7 @@ MIDDLEWARE = [
     "apps.accounts.middleware.RequireTwoFactorMiddleware",
     "axes.middleware.AxesMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "apps.accounts.errors.FriendlyErrorsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -129,6 +130,8 @@ TRUST_PROXY_HEADERS = os.environ.get("TRUST_PROXY_HEADERS") == "1"
 # two-step sign-in requirement and email, and lets the admin hand out temporary passwords.
 DEMO_MODE = os.environ.get("DEMO_MODE") == "1"
 DEFAULT_FROM_EMAIL = "CareBoard <no-reply@localhost>"
+
+CSRF_FAILURE_VIEW = "apps.accounts.errors.csrf_failure"
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"

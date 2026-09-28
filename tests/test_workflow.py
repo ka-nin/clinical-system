@@ -220,4 +220,4 @@ def test_assess_endpoint_uses_the_patients_age(as_role):
     data = r.json()
     assert data["hints"]["pulse"][0] == "Abnormal" and data["hints"]["spo2"] == ["Optimal", "ok"] and data["suggested"] == "urgent"
     assert "weight" not in data["hints"]  # half-typed numbers are ignored, not errors
-    assert nurse.get(reverse("triage_assess", args=[v.pk])).status_code == 405
+    assert nurse.get(reverse("triage_assess", args=[v.pk]), HTTP_X_REQUESTED_WITH="fetch").status_code == 405

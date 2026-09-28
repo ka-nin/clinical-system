@@ -52,7 +52,9 @@ def test_administrators_do_not_get_clinical_access(as_role):
 
 
 def test_actions_need_post(as_role):
-    assert as_role("admin").get(reverse("manage_user_action", args=[uid("nurse.reyes@careboard.demo")])).status_code == 405
+    r = as_role("admin").get(reverse("manage_user_action", args=[uid("nurse.reyes@careboard.demo")]))
+    assert r.status_code == 302 and r["Location"] == reverse("dashboard")          # nothing done; sent home
+    assert User.objects.get(username="nurse.reyes@careboard.demo").is_active
 
 
 # ---- the user list --------------------------------------------------------------------------------------------------------

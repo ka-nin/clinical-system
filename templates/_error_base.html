@@ -1,0 +1,2 @@
+{% extends "accounts/card_base.html" %}
+{% block header_right %}{% if request.user.is_authenticated %}<p class="reg__signin"><a href="{% url 'dashboard' %}">My home page</a></p>{% else %}<p class="reg__signin"><a href="{% url 'login' %}">Sign In</a></p>{% endif %}{% endblock %}

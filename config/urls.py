@@ -23,3 +23,7 @@ urlpatterns = [
     path("history/", include("apps.history.urls")),
     path("audit/", include("apps.audit.urls")),
 ]
+
+handler403 = "apps.accounts.errors.permission_denied"
+handler404 = "apps.accounts.errors.page_not_found"
+handler500 = "apps.accounts.errors.server_error"

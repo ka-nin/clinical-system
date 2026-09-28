@@ -1,0 +1,9 @@
+{% extends "_error_base.html" %}
+{% block page_title %}{{ title|default:"No access" }}{% endblock %}
+{% block card %}
+<span class="reg__pill reg__pill--red">{% if title %}FORM EXPIRED{% else %}NO ACCESS{% endif %}</span>
+<h1>{{ title|default:"This page isn't available to your account" }}</h1>
+<p class="reg__lead">{{ reason|default:"Your account doesn't have access to this page." }}</p>
+{% if not title %}<p class="reg__lead">If you signed in with a different account, this link may belong to another role.</p>{% endif %}
+<a href="{% if request.user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="reg__submit reg__submit--link">{% if request.user.is_authenticated %}Go to my home page{% else %}Sign In{% endif %}</a>
+{% endblock %}

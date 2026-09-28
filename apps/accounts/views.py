@@ -44,6 +44,7 @@ class CareLoginView(LoginView):
             }
             return redirect("login_verify")
         response = super().form_valid(form)
+        response["Location"] = dash.safe_next(user, response["Location"])
         # Without "Remember this computer", the session ends when the browser closes.
         if not self.request.POST.get("remember_me"):
             self.request.session.set_expiry(0)
@@ -69,7 +70,7 @@ def login_verify(request):
             if not pending["remember"]:
                 request.session.set_expiry(0)
             request.session.pop(PENDING_2FA, None)
-            return redirect(pending["next"] or "dashboard")
+            return redirect(dash.safe_next(user, pending["next"]))
         pending["tries"] += 1
         request.session[PENDING_2FA] = pending
         if pending["tries"] >= 5:

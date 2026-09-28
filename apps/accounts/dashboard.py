@@ -192,3 +192,24 @@ CLINICAL_ROLES = ("nurse", "physician")
 def role_of(user):
     profile = _profile(user)
     return profile.role if profile else ""
+
+
+# Which parts of the site each kind of account may use. Anything else goes to that person's own home page.
+AREAS = {
+    "admin": ("/manage/", "/admin/", "/account/"),
+    "student": ("/portal/", "/history/files/", "/account/"),
+    "staff": ("/dashboard/", "/patients/", "/history/", "/account/"),
+}
+CLINICAL_ONLY = ("/triage/",)
+
+
+def safe_next(user, url):
+    """The page to open after sign-in: `url` if this account may use it, otherwise their dashboard."""
+    from urllib.parse import urlparse
+
+    path = urlparse(url or "").path
+    landing = landing_for(user)
+    allowed = AREAS.get(landing, ())
+    if landing == "staff" and role_of(user) in CLINICAL_ROLES:
+        allowed += CLINICAL_ONLY
+    return url if path and any(path.startswith(prefix) for prefix in allowed) else "/dashboard/"
