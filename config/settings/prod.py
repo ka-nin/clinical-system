@@ -25,6 +25,12 @@ _require(
     "use a real database server (Wasmer's MySQL, or DATABASE_URL). SQLite files are not safe on hosts with temporary disks.",
 )
 
+# Static files (CSS, JS, images). If `collectstatic` ran during the build, serve the prepared copies;
+# otherwise (e.g. deploying straight from GitHub with no build step) serve them from the app folders directly.
+if not (STATIC_ROOT / "staticfiles.json").exists():
+    STORAGES["staticfiles"] = {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"}
+    WHITENOISE_USE_FINDERS = True
+
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 if DEMO_MODE and not CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS = ["https://*.wasmer.app"]
