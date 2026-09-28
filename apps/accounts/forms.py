@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.db import transaction
 
+from .formats import DATE_ATTRS, DATE_FORMATS
 from .models import Profile
 
 User = get_user_model()
@@ -82,7 +83,7 @@ class StudentRegistrationForm(BaseRegistrationForm):
     email_placeholder = "jane.doe@university.edu"
 
     date_of_birth = forms.DateField(
-        input_formats=["%m/%d/%Y"], widget=_input("MM/DD/YYYY", autocomplete="bday"),
+        input_formats=DATE_FORMATS, widget=forms.TextInput(attrs=DATE_ATTRS),
         error_messages={"invalid": "Enter a date as MM/DD/YYYY."},
     )
     phone = forms.CharField(max_length=30, widget=_input("+1 (555) 000-0000", autocomplete="tel", type="tel"))

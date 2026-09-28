@@ -1,6 +1,8 @@
 from django import forms
 from django.utils import timezone
 
+from apps.accounts.formats import DATE_ATTRS, DATE_FORMATS
+
 from .models import Patient
 
 
@@ -10,7 +12,7 @@ class PatientRegistrationForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"placeholder": "Elizabeth Hughes", "autocomplete": "off"}),
     )
     date_of_birth = forms.DateField(
-        label="Date of Birth", input_formats=["%m/%d/%Y"], widget=forms.TextInput(attrs={"placeholder": "MM/DD/YYYY", "autocomplete": "off"}),
+        label="Date of Birth", input_formats=DATE_FORMATS, widget=forms.TextInput(attrs=DATE_ATTRS),
         error_messages={"invalid": "Enter a date as MM/DD/YYYY."},
     )
 

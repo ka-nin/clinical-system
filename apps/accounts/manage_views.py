@@ -32,6 +32,7 @@ from apps.audit.services import log, verify_chain
 
 from .dashboard import ADMINISTRATOR
 from .forms import CLINIC_STAFF, STUDENT
+from .formats import DATE_ATTRS, DATE_FORMATS
 from .models import Profile, TwoFactor
 from .permissions import admin_required
 
@@ -395,8 +396,8 @@ class UserForm(forms.Form):
     department = forms.CharField(label="Department", max_length=100, required=False)
     employee_id = forms.CharField(label="Employee / License ID", max_length=40, required=False)
     student_id = forms.CharField(label="Student ID", max_length=40, required=False)
-    date_of_birth = forms.DateField(label="Date of Birth", required=False, input_formats=["%m/%d/%Y"],
-                                    widget=forms.TextInput(attrs={"placeholder": "MM/DD/YYYY"}))
+    date_of_birth = forms.DateField(label="Date of Birth", required=False, input_formats=DATE_FORMATS,
+                                    widget=forms.TextInput(attrs=DATE_ATTRS))
     shift_start = forms.TimeField(label="Shift starts", required=False, widget=forms.TimeInput(attrs={"type": "time"}))
     shift_end = forms.TimeField(label="Shift ends", required=False, widget=forms.TimeInput(attrs={"type": "time"}))
 

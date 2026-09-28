@@ -41,7 +41,8 @@ class VitalsFieldsMixin(forms.ModelForm):
 
     blood_pressure = forms.CharField(
         label="Blood Pressure", max_length=9,
-        widget=forms.TextInput(attrs={"placeholder": "118 / 74", "inputmode": "numeric", "autocomplete": "off", "data-vital": "bp"}),
+        widget=forms.TextInput(attrs={"placeholder": "118 / 74", "inputmode": "numeric", "autocomplete": "off", "data-vital": "bp",
+                                      "data-format": "bp", "maxlength": "9"}),
     )
 
     VITAL_ORDER = ["temperature_c", "blood_pressure", "pulse", "respiratory_rate", "oxygen_sat", "pain_score", "weight_kg", "height_cm"]
