@@ -1,0 +1,37 @@
+{% extends "app/base.html" %}
+{% block page_title %}{{ patient.full_name }}{% endblock %}
+{% block crumb %}<a href="{% url 'patient_list' %}">Patient Directory</a> <span>/</span> {{ patient.code }}{% endblock %}
+{% block heading %}{{ patient.full_name }}{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="patients" %}{% endblock %}
+
+{% block content %}
+{% include "patients/_allergy_banner.html" with edit_link=True %}
+<div class="lower lower--detail">
+  <section class="panel">
+    <div class="panel__head"><h3>Patient details</h3><a href="{% url 'patient_edit' patient.pk %}" class="abtn abtn--ghost abtn--sm">Update details</a></div>
+    <dl class="facts">
+      <div><dt>Patient ID</dt><dd>{{ patient.code }}</dd></div>
+      <div><dt>Date of birth</dt><dd>{{ patient.date_of_birth|date:"M d, Y" }} ({{ patient.age }} y/o)</dd></div>
+      <div><dt>Sex</dt><dd>{{ patient.get_sex_display|default:"—" }}</dd></div>
+      <div><dt>Civil status</dt><dd>{{ patient.civil_status|default:"—" }}</dd></div>
+      <div><dt>Phone</dt><dd>{{ patient.phone }}</dd></div>
+      <div><dt>Email</dt><dd>{{ patient.email|default:"—" }}</dd></div>
+      <div><dt>Address</dt><dd>{{ patient.address }}</dd></div>
+      <div><dt>Emergency contact</dt><dd>{% if patient.emergency_contact_name %}{{ patient.emergency_contact_name }} ({{ patient.emergency_relationship }}) · {{ patient.emergency_phone }}{% else %}—{% endif %}</dd></div>
+    </dl>
+  </section>
+  <section class="panel">
+    <div class="panel__head"><h3>Visits</h3></div>
+    <p class="formpanel__note" style="text-align:left">Clinical details (vitals and notes) are visible to nurses and physicians only.</p>
+    {% if current and current.status == 'registered' or current and current.status == 'in_triage' %}
+      {% include "patients/_close_visit.html" with visit=current %}
+    {% endif %}
+    <div class="visits">
+      {% for v in visits %}
+      <article class="visit"><div class="visit__top"><strong>{{ v.registered_at|date:"M d, Y · h:i A" }}</strong><span class="pill-chip pill-chip--{% if v.status == 'with_doctor' %}green{% elif v.status == 'in_triage' %}yellow{% else %}blue{% endif %}">{{ v.get_status_display }}</span></div>
+      {% if v.closed_reason %}<p class="visit__complaint muted">{{ v.closed_reason }}</p>{% endif %}</article>
+      {% empty %}<p class="muted-empty">No visits yet.</p>{% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "app/base.html" %}
+{% block page_title %}Digital Registration Kiosk{% endblock %}
+{% block crumb %}Intake Registration{% endblock %}
+{% block heading %}Digital Registration Kiosk{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="intake" %}{% endblock %}
+
+{% block content %}
+<section class="flowcard">
+  <div>
+    <h3>Patient Registration Flow</h3>
+    <p>Progress: Step 1 of 4 (Registration &gt; Triage pre-check &gt; Consultation &gt; Complete)</p>
+  </div>
+  <ol class="stepper" aria-label="Registration progress">
+    <li class="stepper__item is-active" aria-current="step"><i class="stepper__dot"></i>Registration</li>
+    <li class="stepper__line" aria-hidden="true"></li>
+    <li class="stepper__item"><i class="stepper__dot"></i>Pre-check</li>
+    <li class="stepper__line" aria-hidden="true"></li>
+    <li class="stepper__item"><i class="stepper__dot"></i>Consult</li>
+  </ol>
+</section>
+
+{% if draft_loaded %}
+<div class="flash flash--info draftbar">
+  <span>Your saved draft was restored. Review it and register when ready.</span>
+  <form method="post">{% csrf_token %}<button type="submit" name="action" value="discard" class="draftbar__btn">Discard draft</button></form>
+</div>
+{% endif %}
+
+{% if matches %}
+<section class="matches" role="alert">
+  <h3>This might be someone already registered</h3>
+  <p>Check before creating a second record for the same person.</p>
+  <ul>
+    {% for m in matches %}
+    <li>
+      <div><strong>{{ m.full_name }}</strong><span>{{ m.code }} · DOB {{ m.date_of_birth|date:"M d, Y" }} · {{ m.phone }}</span></div>
+      <button type="submit" form="intakeform" name="use_patient" value="{{ m.pk }}" class="ik__btn ik__btn--primary ik__btn--sm">Use this record</button>
+    </li>
+    {% endfor %}
+  </ul>
+  <button type="submit" form="intakeform" name="confirm_new" value="1" class="ik__btn ik__btn--ghost ik__btn--sm">None of these: register as a new patient</button>
+</section>
+{% endif %}
+
+<form method="post" class="ik" id="intakeform" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+
+  <div class="ik__cols">
+    <section>
+      <h3>1. Personal Demographics</h3>
+      <div class="ik__grid">
+        {% include "patients/_ikfield.html" with field=form.full_name wide=True %}
+        {% include "patients/_ikfield.html" with field=form.date_of_birth %}
+        {% include "patients/_ikfield.html" with field=form.sex %}
+        {% include "patients/_ikfield.html" with field=form.civil_status %}
+        {% include "patients/_ikfield.html" with field=form.blood_type %}
+        {% include "patients/_ikfield.html" with field=form.allergies wide=True %}
+      </div>
+    </section>
+    <section>
+      <h3>2. Contact &amp; Residential Info</h3>
+      <div class="ik__grid">
+        {% include "patients/_ikfield.html" with field=form.phone %}
+        {% include "patients/_ikfield.html" with field=form.email %}
+        {% include "patients/_ikfield.html" with field=form.address wide=True %}
+      </div>
+    </section>
+  </div>
+
+  <hr class="ik__rule">
+
+  <section>
+    <h3>3. Emergency Contact Details</h3>
+    <div class="ik__grid ik__grid--3">
+      {% include "patients/_ikfield.html" with field=form.emergency_contact_name %}
+      {% include "patients/_ikfield.html" with field=form.emergency_relationship %}
+      {% include "patients/_ikfield.html" with field=form.emergency_phone %}
+    </div>
+  </section>
+
+  <div class="ik__actions">
+    <button type="submit" name="action" value="draft" class="ik__btn ik__btn--ghost">Save as Draft</button>
+    <button type="submit" name="action" value="register" class="ik__btn ik__btn--primary">
+      Save &amp; Proceed to Triage pre-check
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+  </div>
+</form>
+{% endblock %}

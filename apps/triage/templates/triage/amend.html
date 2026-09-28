@@ -1,0 +1,35 @@
+{% extends "app/base.html" %}
+{% block page_title %}Correct vitals{% endblock %}
+{% block crumb %}<a href="{% url 'patient_detail' patient.pk %}">{{ patient.code }}</a> <span>/</span> Correct vitals{% endblock %}
+{% block heading %}Correct vitals: {{ patient.full_name }}{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="patients" %}{% endblock %}
+
+{% block content %}
+{% include "patients/_allergy_banner.html" %}
+<section class="panel formpanel">
+  <p class="formpanel__lead">Change only what was wrong. The original value stays in the record with your name, the time and your reason.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="ik__grid ik__grid--3">
+      {% include "patients/_ikfield.html" with field=form.temperature_c %}
+      {% include "patients/_ikfield.html" with field=form.blood_pressure %}
+      {% include "patients/_ikfield.html" with field=form.pulse %}
+      {% include "patients/_ikfield.html" with field=form.respiratory_rate %}
+      {% include "patients/_ikfield.html" with field=form.oxygen_sat %}
+      {% include "patients/_ikfield.html" with field=form.pain_score %}
+      {% include "patients/_ikfield.html" with field=form.weight_kg %}
+      {% include "patients/_ikfield.html" with field=form.height_cm %}
+    </div>
+    <div class="ik__grid" style="margin-top:24px">
+      <div class="ik__field ik__field--wide"><label for="{{ form.chief_complaint.id_for_label }}">{{ form.chief_complaint.label }}</label>{{ form.chief_complaint }}
+        {% for e in form.chief_complaint.errors %}<p class="ik__err">{{ e }}</p>{% endfor %}</div>
+      {% include "patients/_ikfield.html" with field=form.reason wide=True %}
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="abtn abtn--blue">Save correction</button>
+      <a href="{% url 'patient_detail' patient.pk %}" class="abtn abtn--ghost">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "manage/base.html" %}
+{% block page_title %}{% if target %}Edit account{% else %}Add user{% endif %}{% endblock %}
+{% block crumb %}Admin <span>/</span> <a href="{% url 'manage_users' %}">Users</a> <span>/</span> {% if target %}Edit{% else %}New{% endif %}{% endblock %}
+{% block heading %}{% if target %}Edit: {{ target.get_full_name|default:target.username }}{% else %}Add New User{% endif %}{% endblock %}
+
+{% block content %}
+<div class="lower lower--detail">
+  <section class="panel">
+    <div class="panel__head"><h3>{% if target %}Account details{% else %}New account{% endif %}</h3></div>
+    {% if not target %}<p class="formpanel__note" style="text-align:left">{% if demo_mode %}Demo mode: you'll see a temporary password once, to give to the person.{% else %}The person receives an email with a link to choose their own password. You never see or set it.{% endif %}</p>{% endif %}
+    <form method="post" novalidate {% if not target %}data-role-form{% endif %}>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="ik__grid">
+        {% include "patients/_ikfield.html" with field=form.full_name %}
+        {% include "patients/_ikfield.html" with field=form.email %}
+        {% include "patients/_ikfield.html" with field=form.role %}
+        {% if "department" in form.fields %}{% include "patients/_ikfield.html" with field=form.department group="staff" %}{% endif %}
+        {% if "employee_id" in form.fields %}{% include "patients/_ikfield.html" with field=form.employee_id group="staff" %}{% endif %}
+        {% if "shift_start" in form.fields %}{% include "patients/_ikfield.html" with field=form.shift_start group="staff" %}{% include "patients/_ikfield.html" with field=form.shift_end group="staff" %}{% endif %}
+        {% if "student_id" in form.fields %}{% include "patients/_ikfield.html" with field=form.student_id group="student" %}{% endif %}
+        {% if "date_of_birth" in form.fields %}{% include "patients/_ikfield.html" with field=form.date_of_birth group="student" %}{% endif %}
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="abtn abtn--blue">{% if target %}Save changes{% else %}Create account and send email{% endif %}</button>
+        <a href="{% url 'manage_users' %}" class="abtn abtn--ghost">Cancel</a>
+      </div>
+    </form>
+  </section>
+
+  {% if target %}
+  <section class="panel">
+    <div class="panel__head"><h3>Account status</h3></div>
+    <dl class="facts">
+      <div><dt>Type</dt><dd>{{ kind }}</dd></div>
+      <div><dt>Status</dt><dd><i class="statusbadge statusbadge--{{ status.0 }}">{{ status.1 }}</i></dd></div>
+      <div><dt>Last sign-in</dt><dd>{{ last_login }}</dd></div>
+      <div><dt>Two-step sign-in</dt><dd>{% if has_2fa %}On{% else %}Not set up{% endif %}</dd></div>
+      {% if kind == "Student" %}<div><dt>Linked to a clinic record</dt><dd>{% if linked %}Yes ({{ linked.code }}){% else %}No: front desk links it{% endif %}</dd></div>{% endif %}
+    </dl>
+    {% if locked %}<div class="allergy allergy--unknown" style="margin-top:14px"><span><b>This account is locked</b> after too many wrong passwords.</span></div>{% endif %}
+    <div class="um__tools">
+      {% if demo_mode %}{% if not is_me %}{% include "manage/_tool.html" with action="temp_password" label="Set a temporary password" confirm="Replace this person's password with a new temporary one?" %}{% endif %}
+      {% else %}{% include "manage/_tool.html" with action="send_reset" label="Email a password reset link" %}{% endif %}
+      {% if has_2fa and not is_me %}{% include "manage/_tool.html" with action="reset_2fa" label="Reset two-step sign-in" confirm="Reset two-step sign-in? They will have to set it up again." %}{% endif %}
+      {% if locked %}{% include "manage/_tool.html" with action="unlock" label="Unlock account" %}{% endif %}
+      {% if not is_me %}
+        {% if target.is_active %}{% include "manage/_tool.html" with action="deactivate" label="Deactivate account" danger=True confirm="Deactivate this account? They will be signed out." %}
+        {% else %}{% include "manage/_tool.html" with action="activate" label="Reactivate account" %}{% endif %}
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

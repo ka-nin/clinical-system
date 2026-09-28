@@ -1,0 +1,7 @@
+{% if patient.allergy_status == 'listed' %}
+<div class="allergy allergy--listed" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span><b>ALLERGIES:</b> {{ patient.allergies }}</span></div>
+{% elif patient.allergy_status == 'none' %}
+<div class="allergy allergy--none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>No known allergies recorded.</span></div>
+{% else %}
+<div class="allergy allergy--unknown" role="alert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span><b>Allergies not recorded.</b> Ask the patient before any medication is given.{% if edit_link %} <a href="{% url 'patient_edit' patient.pk %}">Record allergies</a>{% endif %}</span></div>
+{% endif %}

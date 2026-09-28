@@ -1,0 +1,27 @@
+<section class="tsum">
+  <div class="tsum__head">
+    <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Pre-Check Summary</h3>
+    {% if info %}<span>Logged by {{ info.by }} at {{ info.at }}</span>{% endif %}
+  </div>
+  {% if info %}
+  <div class="tsum__grid">
+    <div><span>Temp</span><strong>{{ info.t.temperature_c }} °C</strong></div>
+    <div><span>Blood pressure</span><strong>{{ info.t.systolic }}/{{ info.t.diastolic }} mmHg</strong></div>
+    <div><span>Heart rate</span><strong>{{ info.t.pulse }} bpm</strong></div>
+    {% if info.t.respiratory_rate %}<div><span>Resp. rate</span><strong>{{ info.t.respiratory_rate }}/min</strong></div>{% endif %}
+    {% if info.t.oxygen_sat %}<div><span>SpO2</span><strong>{{ info.t.oxygen_sat }}%</strong></div>{% endif %}
+    <div><span>Weight</span><strong>{{ info.t.weight_kg }} kg</strong></div>
+    {% if info.t.height_cm %}<div><span>Height</span><strong>{{ info.t.height_cm }} cm</strong></div>{% endif %}
+    {% if info.t.pain_score is not None %}<div><span>Pain</span><strong>{{ info.t.pain_score }}/10</strong></div>{% endif %}
+  </div>
+  <p class="tsum__complaint"><b>Chief complaint:</b> {{ info.t.chief_complaint }}</p>
+  {% if info.amendments %}
+  <ul class="tsum__amend">
+    {% for a in info.amendments %}<li><b>Corrected {{ a.label|lower }}:</b> {{ a.old_value|default:"(empty)" }} → {{ a.new_value|default:"(empty)" }} <span>by {{ a.amended_by.get_full_name|default:"staff" }} on {{ a.amended_at|date:"M d, h:i A" }} · {{ a.reason }}</span></li>{% endfor %}
+  </ul>
+  {% endif %}
+  {% if visit %}<a href="{% url 'triage_amend' visit.pk %}" class="tsum__fix">Correct a vital</a>{% endif %}
+  {% else %}
+  <p class="tsum__complaint">The pre-check has not been recorded yet.</p>
+  {% endif %}
+</section>

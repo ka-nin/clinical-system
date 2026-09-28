@@ -1,0 +1,49 @@
+{% extends "app/base.html" %}
+{% block page_title %}Update details{% endblock %}
+{% block crumb %}<a href="{% url 'patient_list' %}">Patient Directory</a> <span>/</span> <a href="{% url 'patient_detail' patient.pk %}">{{ patient.code }}</a>{% endblock %}
+{% block heading %}Update details: {{ patient.full_name }}{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="patients" %}{% endblock %}
+
+{% block content %}
+{% include "patients/_allergy_banner.html" %}
+<section class="panel formpanel">
+  <p class="formpanel__lead">Name, date of birth and sex identify the patient and can only be corrected by an administrator. Everything else can be updated here, and the earlier values stay on file.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="ik__grid">
+      {% include "patients/_ikfield.html" with field=form.phone %}
+      {% include "patients/_ikfield.html" with field=form.email %}
+      {% include "patients/_ikfield.html" with field=form.address wide=True %}
+      {% include "patients/_ikfield.html" with field=form.civil_status %}
+      {% include "patients/_ikfield.html" with field=form.blood_type %}
+      {% include "patients/_ikfield.html" with field=form.allergies wide=True %}
+      {% include "patients/_ikfield.html" with field=form.emergency_contact_name %}
+      {% include "patients/_ikfield.html" with field=form.emergency_relationship %}
+      {% include "patients/_ikfield.html" with field=form.emergency_phone %}
+      {% include "patients/_ikfield.html" with field=form.reason wide=True %}
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="abtn abtn--blue">Save changes</button>
+      <a href="{% url 'patient_detail' patient.pk %}" class="abtn abtn--ghost">Cancel</a>
+    </div>
+  </form>
+  <h3 class="edit__h">Student portal account</h3>
+  {% if patient.user %}
+    <p class="formpanel__note" style="text-align:left">Linked to <b>{{ patient.user.get_full_name|default:patient.user.username }}</b> ({{ patient.user.username }}). They can see their own record in the student portal.</p>
+    <form method="post" action="{% url 'patient_unlink_account' patient.pk %}" data-confirm-submit="Unlink this portal account? The student will no longer see this record.">{% csrf_token %}<button type="submit" class="abtn abtn--ghost abtn--sm">Unlink account</button></form>
+  {% else %}
+    <p class="formpanel__note" style="text-align:left">Only link an account after checking the student's ID. Enter the student ID they registered with; their date of birth must match this record.</p>
+    <form method="post" action="{% url 'patient_link_account' patient.pk %}" class="closer__form">{% csrf_token %}
+      <input type="text" name="student_id" placeholder="Student ID, e.g. STU-984-219" aria-label="Student ID" required>
+      <button type="submit" class="abtn abtn--blue abtn--sm">Link account</button>
+    </form>
+  {% endif %}
+  {% if history %}
+  <h3 class="edit__h">Change history</h3>
+  <ul class="changes">
+    {% for c in history %}<li><b>{{ c.label }}</b>: “{{ c.old_value|default:"(empty)" }}” → “{{ c.new_value|default:"(empty)" }}” <span>{{ c.changed_by.get_full_name|default:"someone" }} · {{ c.changed_at|date:"M d, Y h:i A" }}{% if c.reason %} · {{ c.reason }}{% endif %}</span></li>{% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endblock %}

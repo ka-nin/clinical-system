@@ -1,0 +1,39 @@
+{% extends "accounts/register_base.html" %}
+{% block page_title %}Request Staff Credentials{% endblock %}
+
+{% block card %}
+<span class="reg__pill reg__pill--green">CLINIC OPERATIONS STAFF</span>
+<h1>Request Staff Credentials</h1>
+<p class="reg__lead">Register as authorized staff to document vitals, triage cards, or clinical consults.</p>
+
+<div class="reg__notice reg__notice--warn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+  <p>Staff credentials require verification by the clinical superintendent before record reading/writing is unlocked.</p>
+</div>
+
+<form method="post" class="reg__form" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="reg__grid">
+    {% include "accounts/_field.html" with field=form.full_name label="Full Name" %}
+    {% include "accounts/_field.html" with field=form.email label="Clinical Email Address" %}
+    {% include "accounts/_field.html" with field=form.employee_id label="Employee / License ID" %}
+    {% include "accounts/_field.html" with field=form.department label="Assigned Department" %}
+
+    <div class="reg__field reg__field--full{% if form.role.errors %} has-error{% endif %}">
+      <span class="reg__label">Role / Access Tier</span>
+      <div class="segrole" role="radiogroup">
+        {% for radio in form.role %}
+          <label>{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+        {% endfor %}
+      </div>
+      {% for error in form.role.errors %}<p class="reg__err">{{ error }}</p>{% endfor %}
+    </div>
+
+    {% include "accounts/_field.html" with field=form.password1 label="Password" %}
+    {% include "accounts/_field.html" with field=form.password2 label="Confirm Password" %}
+  </div>
+  <button type="submit" class="reg__submit">Request Active Credentials</button>
+  <p class="reg__foot">Requires system administrator review. Check your inbox for activation logs.</p>
+</form>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "accounts/card_base.html" %}
+{% block page_title %}Too many attempts{% endblock %}
+{% block card %}
+<span class="reg__pill reg__pill--red">TEMPORARILY LOCKED</span>
+<h1>Too many failed sign-ins</h1>
+<p class="reg__lead">To protect patient records, sign-in for this email is paused for 15 minutes. Try again later, or contact a system administrator if you need help now.</p>
+<a href="{% url 'login' %}" class="reg__submit reg__submit--link">Back to Sign In</a>
+{% endblock %}

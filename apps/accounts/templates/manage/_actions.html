@@ -1,0 +1,12 @@
+{# One small POST form per action. Needs: r (row), next (path to return to), me_id #}
+<div class="um__actions">
+  <a href="{% url 'manage_user_edit' r.user.pk %}" class="abtn abtn--ghost abtn--sm">Edit</a>
+  {% if r.user.pk == me_id %}<span class="um__you">You</span>
+  {% elif r.status.0 == 'pending' and r.kind == 'staff' %}
+    <form method="post" action="{% url 'manage_user_action' r.user.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><button name="action" value="approve" class="abtn abtn--blue abtn--sm">Approve</button></form>
+  {% elif r.user.is_active %}
+    <form method="post" action="{% url 'manage_user_action' r.user.pk %}" data-confirm-submit="Deactivate {{ r.name }}? They will be signed out and can't sign in until reactivated.">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><button name="action" value="deactivate" class="abtn abtn--deny abtn--sm">Deactivate</button></form>
+  {% else %}
+    <form method="post" action="{% url 'manage_user_action' r.user.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><button name="action" value="activate" class="abtn abtn--ghost abtn--sm">Activate</button></form>
+  {% endif %}
+</div>

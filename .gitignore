@@ -1,0 +1,12 @@
+.env
+db.sqlite3
+__pycache__/
+*.pyc
+.venv/
+staticfiles/
+.pytest_cache/
+demo-accounts.txt
+build/
+.DS_Store
+# Licensed Adobe Stock original (the site uses the resized copy in static/img)
+design/

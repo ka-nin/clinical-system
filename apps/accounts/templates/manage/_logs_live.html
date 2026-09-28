@@ -1,0 +1,60 @@
+<section class="astats" aria-label="Log summary">
+  <article class="astat"><span class="astat__label">Total Audit Actions</span>
+    <span class="astat__icon astat__icon--blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+    <span class="astat__value">{{ stats.total }}</span><span class="astat__sub">In the selected range</span></article>
+  <article class="astat"><span class="astat__label">Unique Active Users</span>
+    <span class="astat__icon astat__icon--purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+    <span class="astat__value">{{ stats.people }}</span><span class="astat__sub">People who did something</span></article>
+  <article class="astat"><span class="astat__label">Records Accessed</span>
+    <span class="astat__icon astat__icon--green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></span>
+    <span class="astat__value">{{ stats.records }}</span><span class="astat__sub">Patient records opened</span></article>
+  <article class="astat"><span class="astat__label">Security Alerts</span>
+    <span class="astat__icon astat__icon--red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+    <span class="astat__value">{{ stats.alerts }}</span><span class="astat__sub">Flagged in the last 7 days</span></article>
+</section>
+
+<section class="panel lgpanel">
+  <div class="logfilters">
+    <form method="get" class="lgf">
+      <label class="lgf__pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Date Range:
+        <select name="range" data-autosubmit aria-label="Date range">{% for value, label in ranges %}<option value="{{ value }}" {% if range == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <label class="lgf__pill">Filter:
+        <select name="role" data-autosubmit aria-label="Kind of user">{% for value, label in roles %}<option value="{{ value }}" {% if f.role == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <label class="lgf__pill">Action:
+        <select name="kind" data-autosubmit aria-label="Action"><option value="">All Actions</option>{% for value, label in kinds %}<option value="{{ value }}" {% if f.kind == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <span class="lgf__live"><i class="dot"></i>Live: refreshes every 15 seconds</span>
+      <details class="lgf__more"{% if f.q or f.who or f.patient or f.since or f.until or f.emergency %} open{% endif %}>
+        <summary>More filters</summary>
+        <div class="lgf__grid">
+          <input type="search" name="q" value="{{ f.q }}" placeholder="Search the activity text" aria-label="Search activity">
+          <input type="search" name="who" value="{{ f.who }}" placeholder="Person (name or email)" aria-label="Person">
+          <input type="search" name="patient" value="{{ f.patient }}" placeholder="Patient (name or ID)" aria-label="Patient">
+          <label>From <input type="date" name="since" value="{{ f.since }}"></label>
+          <label>To <input type="date" name="until" value="{{ f.until }}"></label>
+          <label class="lgf__check"><input type="checkbox" name="emergency" value="1" {% if f.emergency %}checked{% endif %}> Emergency access only</label>
+          <button type="submit" class="abtn abtn--blue abtn--sm">Apply</button>
+          <a href="{% url 'manage_logs' %}" class="abtn abtn--ghost abtn--sm">Clear</a>
+        </div>
+      </details>
+    </form>
+  </div>
+  <div class="lgtable" role="table" aria-label="Audit log">
+    <div class="lgrow lgrow--head" role="row"><span>Timestamp</span><span>User</span><span>Action</span><span>Affected Record</span><span>IP Address</span></div>
+    {% for r in rows %}
+    <div class="lgrow{% if emergency_tag in r.e.text %} lgrow--alert{% endif %}" role="row">
+      <span class="lg__time">{{ r.time }}{% if range != "today" %}<small>{{ r.date }}</small>{% endif %}</span>
+      <span class="lg__user"><i class="lg__avatar"></i>{{ r.who }}</span>
+      <span><i class="abadge abadge--{{ r.style }}">{{ r.label }}</i></span>
+      <span class="lg__record"><b>{{ r.record }}</b><small title="{{ r.e.text }}">{{ r.e.text }}</small></span>
+      <span class="lg__ip">{{ r.ip }}</span>
+    </div>
+    {% empty %}<p class="muted-empty">No entries match. Try a wider date range.</p>{% endfor %}
+  </div>
+  <div class="dir__foot">
+    <span>Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}</span>
+    <div class="dir__pager">
+      {% if page.has_previous %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.previous_page_number }}" class="dir__pbtn">Previous</a>{% else %}<span class="dir__pbtn is-off">Previous</span>{% endif %}
+      {% if page.has_next %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.next_page_number }}" class="dir__pbtn dir__pbtn--next">Next</a>{% else %}<span class="dir__pbtn dir__pbtn--next is-off">Next</span>{% endif %}
+    </div>
+  </div>
+</section>

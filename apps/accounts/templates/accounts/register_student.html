@@ -1,0 +1,29 @@
+{% extends "accounts/register_base.html" %}
+{% block page_title %}Create Student Account{% endblock %}
+
+{% block card %}
+<span class="reg__pill">PATIENT PORTAL</span>
+<h1>Create Student Account</h1>
+<p class="reg__lead">Sign up to view your private consultation history, clinical files, and triage vitals.</p>
+
+<div class="reg__notice reg__notice--info">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+  <p>Student accounts are restricted to View-Only access to their own personal files. No direct modifications can be written.</p>
+</div>
+
+<form method="post" class="reg__form" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="reg__grid">
+    {% include "accounts/_field.html" with field=form.full_name label="Full Name" %}
+    {% include "accounts/_field.html" with field=form.date_of_birth label="Date of Birth" %}
+    {% include "accounts/_field.html" with field=form.email label="Email Address" %}
+    {% include "accounts/_field.html" with field=form.phone label="Phone Number" %}
+    {% include "accounts/_field.html" with field=form.student_id label="Student ID Number" span_full=True %}
+    {% include "accounts/_field.html" with field=form.password1 label="Password" %}
+    {% include "accounts/_field.html" with field=form.password2 label="Confirm Password" %}
+  </div>
+  <button type="submit" class="reg__submit">Create View-Only Account</button>
+  <p class="reg__foot">By registering, you agree to the clinic's patient privacy policy.</p>
+</form>
+{% endblock %}

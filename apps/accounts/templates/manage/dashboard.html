@@ -1,0 +1,76 @@
+{% extends "manage/base.html" %}
+{% block page_title %}System Overview{% endblock %}
+{% block crumb %}Admin{% endblock %}
+{% block heading %}System Overview Dashboard{% endblock %}
+{% block admin_label %}Administrator Access{% endblock %}
+
+{% block content %}
+<section class="astats" aria-label="System at a glance">
+  <article class="astat">
+    <span class="astat__label">Total Accounts</span>
+    <span class="astat__icon astat__icon--blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+    <span class="astat__value">{{ total }}</span>
+    <span class="astat__sub">Registered accounts</span>
+    <span class="astat__foot"><i class="mchip mchip--blue">{{ kind_counts.staff }} Staff</i><i class="mchip mchip--green">{{ kind_counts.student }} Stud</i><i class="mchip mchip--purple">{{ kind_counts.admin }} Adm</i></span>
+  </article>
+  <article class="astat">
+    <span class="astat__label">Active Sessions</span>
+    <span class="astat__icon astat__icon--green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+    <span class="astat__value">{{ online }}</span>
+    <span class="astat__sub">Users active in the last 5 minutes</span>
+    <span class="astat__foot astat__foot--green"><i class="dot"></i>Idle sessions end after 30 min</span>
+  </article>
+  <article class="astat">
+    <span class="astat__label">Pending Approvals</span>
+    <span class="astat__icon astat__icon--yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+    <span class="astat__value">{{ pending_count }}</span>
+    <span class="astat__sub">Staff awaiting activation</span>
+    <a href="{% url 'manage_users' %}" class="astat__foot astat__foot--amber astat__link">Review queue now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+  </article>
+  <article class="astat">
+    <span class="astat__label">Audit Log Integrity</span>
+    <span class="astat__icon astat__icon--purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+    <span class="astat__value">{% if integrity == 'intact' %}Intact{% elif integrity == 'problem' %}Check failed{% else %}—{% endif %}</span>
+    <span class="astat__sub">{{ checked }} chained entr{{ checked|pluralize:"y,ies" }} verified</span>
+    {% if integrity == 'problem' %}<a href="{% url 'manage_logs' %}" class="astat__foot astat__foot--red astat__link">Open the Access Logs to investigate</a>
+    {% else %}<span class="astat__foot astat__foot--green">No edits or gaps found</span>{% endif %}
+  </article>
+</section>
+
+<div class="lower lower--even">
+  <section class="panel">
+    <div class="panel__head"><h3>Recent Account Activity</h3><a href="{% url 'manage_logs' %}" class="pill-chip pill-chip--grey">System Logs</a></div>
+    <ul class="acts">
+      {% for a in activity %}
+      <li><i class="acts__dot acts__dot--{{ a.dot }}"></i><div><strong>{{ a.title }}</strong><span>By {{ a.by }}</span></div><time>{{ a.ago }}</time></li>
+      {% empty %}<li class="muted-empty">No account activity yet.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="panel">
+    <div class="panel__head"><h3>Security &amp; Access Alerts</h3>{% if flag_count %}<span class="pill-chip pill-chip--red">{{ flag_count }} Flag{{ flag_count|pluralize }}</span>{% else %}<span class="pill-chip pill-chip--green">All clear</span>{% endif %}</div>
+    <div class="alerts">
+      {% for a in alerts %}
+      <article class="alertrow alertrow--{{ a.level }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <div><strong>{{ a.title }}</strong><span>{{ a.detail }}</span></div>
+        <em class="alertrow__level">{{ a.level|upper }}</em><time>{{ a.ago }}</time>
+      </article>
+      {% empty %}<p class="muted-empty">Nothing needs attention in the last 7 days.</p>{% endfor %}
+    </div>
+    <p class="formpanel__note" style="text-align:left">Flags: repeated wrong passwords, emergency record access, log exports, and record access between 10 pm and 5 am.</p>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel__head"><h3>User Distribution by Role</h3></div>
+  <p class="dist__sub">Split of active accounts</p>
+  {% if any_active %}
+  <div class="dist__bar" role="img" aria-label="User distribution by role">
+    {% for s in segments %}{% if s.count %}<span class="dist__seg dist__seg--{{ s.colour }}" style="flex: {{ s.count }}">{% if s.pct >= 12 %}{{ s.pct }}% {{ s.label }}{% else %}{{ s.pct }}%{% endif %}</span>{% endif %}{% endfor %}
+  </div>
+  <ul class="dist__legend">
+    {% for s in segments %}<li><i class="dist__dot dist__dot--{{ s.colour }}"></i><div><strong>{{ s.label }}</strong><span>{{ s.count }} Account{{ s.count|pluralize }}</span></div></li>{% endfor %}
+  </ul>
+  {% else %}<p class="muted-empty">No active accounts.</p>{% endif %}
+</section>
+{% endblock %}

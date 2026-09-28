@@ -1,0 +1,12 @@
+# Wasmer Edge app. Deploy from the build folder made by tools/build_deploy.sh (never from the project root).
+kind: wasmer.io/App.v0
+name: careboard-demo
+capabilities:
+  database:
+    engine: mysql            # Wasmer creates the database and passes DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
+env:
+  DJANGO_SETTINGS_MODULE: config.settings.prod
+  DEMO_MODE: "1"             # warning banner, no two-step sign-in, temporary passwords instead of email
+  AUTO_SETUP: "1"            # on start: apply database migrations and add the demo accounts once
+# DJANGO_SECRET_KEY and DEMO_PASSWORD are Wasmer secrets, never written here:
+#   wasmer app secrets create --from-file ../deploy-secrets.env

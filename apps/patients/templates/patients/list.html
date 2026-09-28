@@ -1,0 +1,57 @@
+{% extends "app/base.html" %}
+{% block page_title %}Patient Archive Vault{% endblock %}
+{% block crumb %}Patient Directory{% endblock %}
+{% block heading %}Patient Archive Vault{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="patients" %}{% endblock %}
+
+{% block content %}
+<section class="panel dir">
+  <form method="get" class="dir__toolbar">
+    <label class="dir__search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" name="q" value="{{ q }}" placeholder="Search Name, ID, or Contact…" aria-label="Search patients">
+    </label>
+    <label class="dir__status">Status:
+      <select name="status" data-autosubmit aria-label="Filter by status">
+        <option value="" {% if not status %}selected{% endif %}>All</option>
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+      </select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </label>
+    <span class="dir__count">{{ total_patients|stringformat:"d" }} TOTAL PATIENTS</span>
+    <a href="{% url 'patient_create' %}" class="abtn abtn--blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      Add New Patient
+    </a>
+  </form>
+
+  <div class="dir__table" role="table" aria-label="Patients">
+    <div class="dir__row dir__row--head" role="row">
+      <span role="columnheader">Patient ID</span><span role="columnheader">Full Name</span><span role="columnheader">Date of Birth</span>
+      <span role="columnheader">Contact</span><span role="columnheader">Last Visit</span><span role="columnheader">Status</span><span role="columnheader" class="dir__right">Actions</span>
+    </div>
+    {% for r in rows %}
+    <div class="dir__row" role="row">
+      <a href="{% url 'patient_detail' r.patient.pk %}" class="dir__id">{{ r.patient.code }}</a>
+      <span class="dir__name">{{ r.patient.full_name }}</span>
+      <span>{{ r.patient.date_of_birth|date:"M d, Y" }}</span>
+      <span>{{ r.patient.phone }}</span>
+      <span>{{ r.last_visit }}</span>
+      <span><i class="dir__badge dir__badge--{% if r.patient.is_active %}active{% else %}inactive{% endif %}">{% if r.patient.is_active %}Active{% else %}Inactive{% endif %}</i></span>
+      <span class="dir__right"><a href="{% url 'patient_detail' r.patient.pk %}" class="dir__view">View Records</a></span>
+    </div>
+    {% empty %}
+    <p class="muted-empty">{% if q or status %}No patients match your search.{% else %}No patients registered yet.{% endif %}</p>
+    {% endfor %}
+  </div>
+
+  <div class="dir__foot">
+    <span>{% if page.paginator.count %}Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count|stringformat:"d" }} patients{% else %}Showing 0 patients{% endif %}</span>
+    <div class="dir__pager">
+      {% if page.has_previous %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.previous_page_number }}" class="dir__pbtn">Previous</a>{% else %}<span class="dir__pbtn is-off">Previous</span>{% endif %}
+      {% if page.has_next %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.next_page_number }}" class="dir__pbtn dir__pbtn--next">Next</a>{% else %}<span class="dir__pbtn dir__pbtn--next is-off">Next</span>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

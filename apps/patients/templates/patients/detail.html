@@ -1,0 +1,193 @@
+{% extends "app/base.html" %}
+{% block page_title %}{{ patient.full_name }}{% endblock %}
+{% block crumb %}<a href="{% url 'patient_list' %}">Patient Directory</a> <span>/</span> Active Session{% endblock %}
+{% block heading %}Clinical Consultation Suite{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="patients" %}{% endblock %}
+
+{% block content %}
+<div class="suite">
+  <div class="suite__main">
+    <section class="pcard">
+      <span class="pcard__avatar">{{ patient.initials }}</span>
+      <div class="pcard__who">
+        <h2>{{ patient.full_name }} <span class="pcard__code">{{ patient.code }}</span></h2>
+        <p>Age: {{ patient.age }}{% if patient.sex %} · Sex: {{ patient.get_sex_display }}{% endif %} · DOB: {{ patient.date_of_birth|date:"M d, Y" }} · <a href="{% url 'patient_edit' patient.pk %}" class="pcard__edit">Edit details</a></p>
+      </div>
+      <nav class="tabs" aria-label="Record sections">
+        {% for key, label in tabs %}<a href="?tab={{ key }}" class="tab{% if tab == key %} is-active{% endif %}"{% if tab == key %} aria-current="page"{% endif %}>{{ label }}{% if key == "attachments" and pending_files %} <b class="tab__badge">{{ pending_files }}</b>{% endif %}</a>{% endfor %}
+      </nav>
+    </section>
+    {% include "patients/_allergy_banner.html" with edit_link=True %}
+
+    {% if tab == "current" %}
+      {% if not current %}
+        <section class="suite__empty"><h3>No active visit</h3><p>{{ patient.first_name }} isn't in today's queue. <a href="{% url 'patient_create' %}">Register a new visit</a> from New Intake.</p></section>
+      {% else %}
+        {% include "patients/_triage_summary.html" with info=current_triage visit=current %}
+
+        {% if current.status != 'with_doctor' %}
+          <section class="suite__empty"><h3>Not in consultation yet</h3><p>This visit is at <b>{{ current.stage }}</b>. Consultation notes open once the triage pre-check is completed.</p>
+            {% if current.status == 'registered' or current.status == 'in_triage' %}{% include "patients/_close_visit.html" with visit=current %}{% endif %}</section>
+        {% elif can_write %}
+          <form method="post" action="{% url 'consultation_save' current.pk %}" class="suite__form" data-consult data-autosave="{% url 'consultation_autosave' current.pk %}">
+            {% csrf_token %}
+            <div class="soap">
+              <label class="soapcard"><h4>Subjective (S)</h4>{{ form.subjective }}</label>
+              <label class="soapcard"><h4>Objective (O)</h4>{{ form.objective }}</label>
+              <label class="soapcard"><h4>Assessment (A)</h4>{{ form.assessment }}</label>
+              <label class="soapcard"><h4>Plan (P)</h4>{{ form.plan }}</label>
+              <label class="soapcard soapcard--wide"><h4>Summary for the patient <small>(optional, shown in their portal)</small></h4>{{ form.patient_summary }}</label>
+            </div>
+            <div class="suite__actions">
+              <span class="suite__saved" data-saved-label>{% if saved_at %}Draft auto-saved at {{ saved_at }}{% else %}Drafts save automatically as you type{% endif %}</span>
+              <div class="suite__btns">
+                <button type="submit" name="action" value="draft" class="sbtn sbtn--ghost">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>Save Draft</button>
+                <button type="submit" name="action" value="complete" class="sbtn sbtn--primary" data-confirm="Complete this visit? The notes become part of the permanent record and can't be edited afterwards.">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Save &amp; Complete Visit</button>
+              </div>
+            </div>
+          </form>
+        {% else %}
+          <div class="flash flash--info">{% if is_doctor %}This visit is not open for notes.{% else %}Only physicians can write consultation notes. You can read them here.{% endif %}</div>
+          <div class="soap">
+            <div class="soapcard"><h4>Subjective (S)</h4><p class="soapcard__text">{{ consult.subjective|default:"Not written yet." }}</p></div>
+            <div class="soapcard"><h4>Objective (O)</h4><p class="soapcard__text">{{ consult.objective|default:"Not written yet." }}</p></div>
+            <div class="soapcard"><h4>Assessment (A)</h4><p class="soapcard__text">{{ consult.assessment|default:"Not written yet." }}</p></div>
+            <div class="soapcard"><h4>Plan (P)</h4><p class="soapcard__text">{{ consult.plan|default:"Not written yet." }}</p></div>
+            {% if consult.patient_summary %}<div class="soapcard soapcard--wide"><h4>Summary for the patient</h4><p class="soapcard__text">{{ consult.patient_summary }}</p></div>{% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+
+    {% elif tab == "past" %}
+      {% if not selected %}
+        <section class="suite__empty"><h3>No past visits</h3><p>Completed visits appear here.</p></section>
+      {% else %}
+        <p class="suite__viewing">Viewing the visit of <b>{{ selected.registered_at|date:"M d, Y" }}</b> — read-only.</p>
+        {% include "patients/_triage_summary.html" with info=selected_triage visit=selected %}
+        <div class="soap">
+          <div class="soapcard"><h4>Subjective (S)</h4><p class="soapcard__text">{{ selected_consult.subjective|default:"—" }}</p></div>
+          <div class="soapcard"><h4>Objective (O)</h4><p class="soapcard__text">{{ selected_consult.objective|default:"—" }}</p></div>
+          <div class="soapcard"><h4>Assessment (A)</h4><p class="soapcard__text">{{ selected_consult.assessment|default:"—" }}</p></div>
+          <div class="soapcard"><h4>Plan (P)</h4><p class="soapcard__text">{{ selected_consult.plan|default:"—" }}</p></div>
+          {% if selected_consult.patient_summary %}<div class="soapcard soapcard--wide"><h4>Summary for the patient</h4><p class="soapcard__text">{{ selected_consult.patient_summary }}</p></div>{% endif %}
+        </div>
+      {% endif %}
+
+    {% elif tab == "attachments" %}
+      <section class="tabpanel">
+        <h3>Reports &amp; attachments</h3>
+        {% if files %}
+        <table class="dtable"><thead><tr><th>Added</th><th>File</th><th>Type</th><th>From</th><th></th></tr></thead><tbody>
+          {% for f in files %}<tr>
+            <td>{{ f.uploaded_at|date:"M d, Y" }}</td>
+            <td><a href="{% url 'attachment_download' f.pk %}?inline=1" target="_blank" rel="noopener"><b>{{ f.filename }}</b></a><small>{{ f.description }} · {{ f.size|filesizeformat }}{% if not f.visible_to_patient %} · hidden from the patient{% endif %}</small>
+              {% if f.review_note %}<small>Note: {{ f.review_note }}</small>{% endif %}</td>
+            <td>{{ f.get_category_display }}</td>
+            <td>{% if f.source == 'patient' %}<span class="pill-chip pill-chip--{% if f.review_status == 'pending' %}yellow{% elif f.review_status == 'rejected' %}red{% else %}green{% endif %}">Patient · {{ f.get_review_status_display }}</span>{% else %}{{ f.uploaded_by.get_full_name|default:"Clinic" }}{% endif %}</td>
+            <td class="dtable__actions">
+              <a href="{% url 'attachment_download' f.pk %}" class="abtn abtn--ghost abtn--sm">Download</a>
+              {% if f.source == 'patient' and f.review_status == 'pending' %}
+              <details class="closer"><summary>Review…</summary>
+                <form method="post" action="{% url 'attachment_review' f.pk %}" class="closer__form">{% csrf_token %}
+                  <input type="text" name="note" maxlength="200" placeholder="Note (required to decline)">
+                  <button type="submit" name="decision" value="accept" class="abtn abtn--blue abtn--sm">Accept</button>
+                  <button type="submit" name="decision" value="decline" class="abtn abtn--ghost abtn--sm">Decline</button>
+                </form></details>
+              {% endif %}
+              <details class="closer"><summary>Withdraw…</summary>
+                <form method="post" action="{% url 'attachment_withdraw' f.pk %}" class="closer__form">{% csrf_token %}
+                  <input type="text" name="reason" maxlength="200" placeholder="Why? (e.g. wrong patient)" required>
+                  <button type="submit" class="abtn abtn--ghost abtn--sm">Withdraw</button>
+                </form></details>
+            </td></tr>{% endfor %}
+        </tbody></table>
+        {% else %}<p class="muted-empty">No files attached to this record yet.</p>{% endif %}
+        <h4 class="tabpanel__sub">Attach a PDF</h4>
+        <form method="post" action="{% url 'attachment_upload' patient.pk %}" enctype="multipart/form-data" class="tabform" novalidate>
+          {% csrf_token %}
+          <div class="ik__grid ik__grid--3">
+            {% include "patients/_ikfield.html" with field=attach_form.file %}
+            {% include "patients/_ikfield.html" with field=attach_form.category %}
+            {% include "patients/_ikfield.html" with field=attach_form.description %}
+          </div>
+          <label class="checkline"><input type="checkbox" name="visible_to_patient" checked> {{ attach_form.visible_to_patient.label }}</label>
+          <p class="formpanel__note" style="text-align:left">PDF only, up to 5 MB. Files with scripts or embedded files are refused. Files can't be edited or deleted; a mistake is withdrawn with a reason.</p>
+          <div class="form-actions"><button type="submit" class="abtn abtn--blue">Upload PDF</button></div>
+        </form>
+      </section>
+
+    {% elif tab == "labs" %}
+      <section class="tabpanel">
+        <h3>Lab results</h3>
+        {% if lab_results %}
+        <table class="dtable"><thead><tr><th>Date</th><th>Test</th><th>Result</th><th>Reference</th><th>Flag</th><th>Entered by</th></tr></thead><tbody>
+          {% for r in lab_results %}<tr>
+            <td>{{ r.resulted_at|date:"M d, Y" }}</td><td>{{ r.test_name }}{% if r.comment %}<small>{{ r.comment }}</small>{% endif %}</td>
+            <td><b>{{ r.value }}</b> {{ r.unit }}</td><td>{{ r.reference_range|default:"—" }}</td>
+            <td><span class="pill-chip pill-chip--{% if r.flag == 'critical' %}red{% elif r.flag == 'abnormal' %}yellow{% else %}green{% endif %}">{{ r.get_flag_display }}</span></td>
+            <td>{{ r.entered_by.get_full_name|default:"—" }}</td></tr>{% endfor %}
+        </tbody></table>
+        {% else %}<p class="muted-empty">No lab results recorded for this patient yet.</p>{% endif %}
+        <h4 class="tabpanel__sub">Add a result</h4>
+        <form method="post" novalidate class="tabform">
+          {% csrf_token %}<input type="hidden" name="form" value="lab">
+          {% if lab_form.non_field_errors %}<div class="reg__formerr">{{ lab_form.non_field_errors }}</div>{% endif %}
+          <div class="ik__grid ik__grid--3">
+            {% include "patients/_ikfield.html" with field=lab_form.test_name %}
+            {% include "patients/_ikfield.html" with field=lab_form.value %}
+            {% include "patients/_ikfield.html" with field=lab_form.unit %}
+            {% include "patients/_ikfield.html" with field=lab_form.reference_range %}
+            {% include "patients/_ikfield.html" with field=lab_form.flag %}
+            {% include "patients/_ikfield.html" with field=lab_form.comment %}
+          </div>
+          <p class="formpanel__note" style="text-align:left">Results can't be edited after they're saved. To fix a mistake, add a new result and say so in the comment.</p>
+          <div class="form-actions"><button type="submit" class="abtn abtn--blue">Save result</button></div>
+        </form>
+      </section>
+    {% else %}
+      <section class="tabpanel">
+        <h3>Prescriptions</h3>
+        {% if prescriptions %}
+        <table class="dtable"><thead><tr><th>Date</th><th>Medication</th><th>Dose</th><th>How often</th><th>Duration</th><th>By</th></tr></thead><tbody>
+          {% for r in prescriptions %}<tr>
+            <td>{{ r.created_at|date:"M d, Y" }}</td>
+            <td><b>{{ r.medication }}</b>{% if r.instructions %}<small>{{ r.instructions }}</small>{% endif %}{% if r.allergy_warning %}<small class="text-danger">Allergy warning overridden: {{ r.allergy_warning }}</small>{% endif %}</td>
+            <td>{{ r.dose }}</td><td>{{ r.frequency }}</td><td>{{ r.duration|default:"—" }}</td><td>{{ r.prescribed_by.get_full_name|default:"—" }}</td></tr>{% endfor %}
+        </tbody></table>
+        {% else %}<p class="muted-empty">No prescriptions recorded for this patient yet.</p>{% endif %}
+        {% if rx_form %}
+        <h4 class="tabpanel__sub">Prescribe</h4>
+        <form method="post" novalidate class="tabform">
+          {% csrf_token %}<input type="hidden" name="form" value="rx">
+          {% if rx_form.non_field_errors %}<div class="reg__formerr">{{ rx_form.non_field_errors }}</div>{% endif %}
+          {% include "patients/_allergy_banner.html" %}
+          <div class="ik__grid ik__grid--3" style="margin-top:14px">
+            {% include "patients/_ikfield.html" with field=rx_form.medication %}
+            {% include "patients/_ikfield.html" with field=rx_form.dose %}
+            {% include "patients/_ikfield.html" with field=rx_form.frequency %}
+            {% include "patients/_ikfield.html" with field=rx_form.duration %}
+            {% include "patients/_ikfield.html" with field=rx_form.instructions wide=True %}
+          </div>
+          <label class="checkline"><input type="checkbox" name="override_allergy" {% if rx_form.override_allergy.value %}checked{% endif %}> {{ rx_form.override_allergy.label }}</label>
+          <div class="form-actions"><button type="submit" class="abtn abtn--blue">Add prescription</button></div>
+        </form>
+        {% elif is_doctor %}<p class="formpanel__note" style="text-align:left">Prescriptions can be added while a visit is in consultation.</p>
+        {% else %}<p class="formpanel__note" style="text-align:left">Only physicians can prescribe.</p>{% endif %}
+      </section>
+    {% endif %}
+  </div>
+
+  <aside class="tline" aria-label="Visit history">
+    <h3>Visit History Timeline</h3>
+    {% for e in timeline %}
+    <a href="?tab={% if e.current %}current{% else %}past&amp;visit={{ e.visit.pk }}{% endif %}" class="tline__item{% if e.current %} is-current{% endif %}">
+      <span class="tline__top"><time>{{ e.date }}</time>{% if e.current %}<i>CURRENT</i>{% endif %}</span>
+      <strong>{{ e.title }}</strong>
+      {% if e.doctor %}<small>{{ e.doctor }}</small>{% endif %}
+    </a>
+    {% empty %}<p class="muted-empty">No visits yet.</p>{% endfor %}
+  </aside>
+</div>
+{% endblock %}

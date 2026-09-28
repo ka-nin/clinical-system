@@ -1,0 +1,28 @@
+{% extends "app/base.html" %}
+{% block page_title %}Reason for access{% endblock %}
+{% block crumb %}<a href="{% url 'patient_list' %}">Patient Directory</a> <span>/</span> Record access{% endblock %}
+{% block heading %}Reason for opening this record{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="patients" %}{% endblock %}
+
+{% block content %}
+<section class="panel formpanel">
+  <div class="allergy allergy--unknown"><span><b>{{ patient.full_name }}</b> ({{ patient.code }}) is not in today's queue.</span></div>
+  <p class="formpanel__lead" style="margin-top:16px">To protect patient privacy, please say why you need this record. Your answer is saved in the audit log.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    {% if error %}<div class="reg__formerr">{{ error }}</div>{% endif %}
+    <fieldset class="reasons">
+      {% for value, label in reasons %}
+      <label class="reasons__opt"><input type="radio" name="reason" value="{{ value }}" {% if chosen == value %}checked{% endif %}> {{ label }}</label>
+      {% endfor %}
+    </fieldset>
+    <div class="reg__field" style="margin-top:16px"><label for="note">Note {% if chosen == 'other' %}<span class="req">*</span>{% else %}(optional){% endif %}</label>
+      <input type="text" name="note" id="note" maxlength="120" value="{{ request.POST.note }}" placeholder="A few words"></div>
+    <div class="form-actions">
+      <button type="submit" class="abtn abtn--blue">Open the record</button>
+      <a href="{% url 'patient_list' %}" class="abtn abtn--ghost">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

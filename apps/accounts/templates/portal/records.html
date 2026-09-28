@@ -1,0 +1,53 @@
+{% extends "portal/base.html" %}
+{% block page_title %}My Medical Records{% endblock %}
+{% block crumb %}My Medical Records{% endblock %}
+{% block heading %}My Medical Records{% endblock %}
+
+{% block content %}
+{% if not patient %}{% include "portal/_unlinked.html" %}{% else %}
+<section class="tabpanel">
+  <h3>Reports &amp; documents</h3>
+  {% if files %}
+  <table class="dtable"><thead><tr><th>Date</th><th>Document</th><th>Type</th><th>From</th><th></th></tr></thead><tbody>
+    {% for f in files %}<tr>
+      <td>{{ f.uploaded_at|date:"M d, Y" }}</td>
+      <td><b>{{ f.filename }}</b><small>{{ f.description }} · {{ f.size|filesizeformat }}</small>{% if f.review_note %}<small>Clinic note: {{ f.review_note }}</small>{% endif %}</td>
+      <td>{{ f.get_category_display }}</td>
+      <td>{% if f.source == 'patient' %}You · <span class="pill-chip pill-chip--{% if f.review_status == 'pending' %}yellow{% elif f.review_status == 'rejected' %}red{% else %}green{% endif %}">{{ f.get_review_status_display }}</span>{% else %}Student health clinic{% endif %}</td>
+      <td><a href="{% url 'attachment_download' f.pk %}" class="abtn abtn--ghost abtn--sm">Download</a></td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="muted-empty">No documents yet.</p>{% endif %}
+
+  <h4 class="tabpanel__sub">Send a document to the clinic</h4>
+  <form method="post" action="{% url 'portal_upload' %}" enctype="multipart/form-data" class="tabform" novalidate>
+    {% csrf_token %}
+    <div class="ik__grid ik__grid--3">
+      {% include "patients/_ikfield.html" with field=upload_form.file %}
+      {% include "patients/_ikfield.html" with field=upload_form.category %}
+      {% include "patients/_ikfield.html" with field=upload_form.description %}
+    </div>
+    <p class="formpanel__note" style="text-align:left">PDF only, up to 5 MB. The clinic reviews what you send before it is added to your record. You have {{ pending }} of {{ max_pending }} waiting.</p>
+    <div class="form-actions"><button type="submit" class="abtn abtn--blue">Send PDF</button></div>
+  </form>
+</section>
+
+<section class="tabpanel">
+  <h3>Lab results</h3>
+  {% if lab_results %}
+  <table class="dtable"><thead><tr><th>Date</th><th>Test</th><th>Result</th><th>Reference</th><th>Flag</th></tr></thead><tbody>
+    {% for r in lab_results %}<tr><td>{{ r.resulted_at|date:"M d, Y" }}</td><td>{{ r.test_name }}</td><td><b>{{ r.value }}</b> {{ r.unit }}</td><td>{{ r.reference_range|default:"—" }}</td>
+      <td><span class="pill-chip pill-chip--{% if r.flag == 'normal' %}green{% else %}yellow{% endif %}">{% if r.flag == 'normal' %}Normal{% else %}Ask your clinician{% endif %}</span></td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="muted-empty">No lab results yet.</p>{% endif %}
+</section>
+
+<section class="tabpanel">
+  <h3>Prescriptions</h3>
+  {% if prescriptions %}
+  <table class="dtable"><thead><tr><th>Date</th><th>Medication</th><th>Dose</th><th>How often</th><th>Duration</th></tr></thead><tbody>
+    {% for r in prescriptions %}<tr><td>{{ r.created_at|date:"M d, Y" }}</td><td><b>{{ r.medication }}</b>{% if r.instructions %}<small>{{ r.instructions }}</small>{% endif %}</td><td>{{ r.dose }}</td><td>{{ r.frequency }}</td><td>{{ r.duration|default:"—" }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="muted-empty">No prescriptions yet.</p>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

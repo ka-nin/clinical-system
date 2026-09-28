@@ -1,0 +1,10 @@
+<details class="closer">
+  <summary>Close this visit…</summary>
+  <form method="post" action="{% url 'visit_close' visit.pk %}" class="closer__form">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <select name="outcome" aria-label="What happened">{% for value, label in close_outcomes %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select>
+    <input type="text" name="reason" maxlength="200" placeholder="Reason (required to cancel)" aria-label="Reason">
+    <button type="submit" class="abtn abtn--ghost abtn--sm">Close visit</button>
+  </form>
+</details>

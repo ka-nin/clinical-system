@@ -1,0 +1,4 @@
+<form method="post" action="{% url 'manage_user_action' target.pk %}" {% if confirm %}data-confirm-submit="{{ confirm }}"{% endif %}>{% csrf_token %}
+  <input type="hidden" name="next" value="{% url 'manage_user_edit' target.pk %}">
+  <button name="action" value="{{ action }}" class="abtn {% if danger %}abtn--deny{% else %}abtn--ghost{% endif %} abtn--sm">{{ label }}</button>
+</form>

@@ -1,0 +1,13 @@
+{# Pending staff activation cards. Needs: pending (rows), next #}
+<section class="pend">
+  {% for r in pending %}
+  <article class="penditem">
+    <span class="penditem__avatar penditem__avatar--{% cycle 'blue' 'green' %}">{{ r.user.first_name|slice:":1" }}{{ r.user.last_name|slice:":1" }}</span>
+    <div class="penditem__who"><strong>{{ r.name }}</strong><span>{{ r.job|default:r.user.email }}</span></div>
+    <div class="penditem__btns">
+      <form method="post" action="{% url 'manage_user_action' r.user.pk %}" data-confirm-submit="Deny {{ r.name }}'s request for staff access?">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><button name="action" value="deny" class="abtn abtn--deny">Deny Access</button></form>
+      <form method="post" action="{% url 'manage_user_action' r.user.pk %}">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><button name="action" value="approve" class="abtn abtn--blue">Approve Staff Member</button></form>
+    </div>
+  </article>
+  {% endfor %}
+</section>

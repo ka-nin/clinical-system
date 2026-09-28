@@ -1,0 +1,11 @@
+{% extends "app/base.html" %}
+{% block page_title %}Triage pre-check{% endblock %}
+{% block crumb %}Triage pre-check{% endblock %}
+{% block heading %}Triage pre-check{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="triage" %}{% endblock %}
+
+{% block content %}
+<section class="panel" data-live="{% url 'triage_queue_fragment' %}">
+  <div data-live-body>{% include "triage/_queue_list.html" %}</div>
+</section>
+{% endblock %}

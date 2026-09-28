@@ -1,0 +1,30 @@
+{% extends "accounts/card_base.html" %}
+{% block page_title %}Two-step sign-in{% endblock %}
+{% block header_right %}<div class="reg__signin"><a href="{% url 'dashboard' %}">Dashboard</a> ·
+  <form method="post" action="{% url 'logout' %}" class="inline-form">{% csrf_token %}<button type="submit" class="linkbtn">Sign out</button></form></div>{% endblock %}
+{% block card %}
+{% for message in messages %}<div class="reg__ok">{{ message }}</div>{% endfor %}
+<span class="reg__pill">ACCOUNT SECURITY</span>
+<h1>Two-step sign-in</h1>
+{% if enabled %}
+  <p class="reg__lead">Your account is protected with an authenticator app. You have <b>{{ left }}</b> unused recovery code{{ left|pluralize }}.</p>
+  {% if new_codes %}
+    <div class="reg__notice reg__notice--warn"><p>Save these recovery codes somewhere safe. Each works once, and they are shown <b>only now</b>.</p></div>
+    <ul class="codes">{% for c in new_codes %}<li>{{ c }}</li>{% endfor %}</ul>
+    <a href="{% url 'dashboard' %}" class="reg__submit reg__submit--link">Continue to the dashboard</a>
+  {% else %}
+    <p class="reg__foot">To turn this off or reset it after losing your phone, ask a system administrator.</p>
+  {% endif %}
+{% else %}
+  <p class="reg__lead">{% if required %}Staff accounts must use two-step sign-in.{% endif %} Scan the code with an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…), then type the 6-digit code it shows.</p>
+  <div class="qrbox">{{ qr|safe }}</div>
+  <p class="reg__foot">Can't scan? Enter this key manually: <code>{{ secret }}</code></p>
+  <form method="post" class="reg__form" novalidate>
+    {% csrf_token %}
+    {% if error %}<div class="reg__formerr">{{ error }}</div>{% endif %}
+    <div class="reg__field"><label for="code">6-digit code</label>
+      <input type="text" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" required placeholder="123456"></div>
+    <button type="submit" class="reg__submit">Turn on two-step sign-in</button>
+  </form>
+{% endif %}
+{% endblock %}

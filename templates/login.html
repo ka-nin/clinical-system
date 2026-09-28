@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Sign In — CareBoard{% endblock %}
+
+{% block body %}
+<div class="auth">
+  <aside class="auth__hero" style="background-image: url('{% static 'img/login-bg.jpg' %}');">
+    <div class="auth__overlay"></div>
+    <div class="auth__hero-inner">
+      <a href="{% url 'home' %}" class="auth__brand">
+        <span class="auth__mark">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M3.22 12H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></svg>
+        </span>
+        <span>CareBoard</span>
+      </a>
+
+      <div class="auth__pitch">
+        <h2>The Digital Core of Your Clinic Operations</h2>
+        <p>Connect triage, consultations, and patient portal under one secure unified database. Zero paper, zero transcription errors.</p>
+      </div>
+
+      <div class="auth__badges">
+        <span>Role-Based Access</span>
+        <span>Activity Audit Trail</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="auth__panel">
+    <form method="post" class="auth__form" novalidate>
+      {% csrf_token %}
+      <h1>Welcome Back</h1>
+      <p class="auth__sub">Please sign in to access clinical resources and records.</p>
+
+      {% for message in messages %}<div class="auth__notice" role="status">{{ message }}</div>{% endfor %}
+
+      {% if form.errors %}
+        <div class="auth__error" role="alert">Incorrect email or password. Please try again.</div>
+      {% endif %}
+
+      <label for="id_username">Email Address <span class="req">*</span></label>
+      <input type="text" name="username" id="id_username" placeholder="physician@clinic.org or student@campus.edu"
+             autocomplete="username" autocapitalize="none" required autofocus value="{{ form.username.value|default:'' }}">
+
+      <label for="id_password">Password <span class="req">*</span></label>
+      <input type="password" name="password" id="id_password" placeholder="••••••••"
+             autocomplete="current-password" required>
+
+      <div class="auth__row">
+        <label class="auth__check"><input type="checkbox" name="remember_me" value="1"><span class="box"></span>Remember this computer</label>
+        <a href="{% url 'password_reset' %}" class="auth__link">Forgot Password?</a>
+      </div>
+
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="auth__submit">Sign In</button>
+
+      <hr class="auth__rule">
+      <p class="auth__need">NEED A CLINICAL ACCOUNT?</p>
+      <div class="auth__roles">
+        <a href="{% url 'register_student' %}" class="role">
+          <strong>Student Patient</strong><span>View-only records portal</span>
+        </a>
+        <a href="{% url 'register_staff' %}" class="role is-active">
+          <strong>Clinical Staff</strong><span>Full authorized pre-checks</span>
+        </a>
+      </div>
+    </form>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+<div class="panel__head">
+  <h3>Waiting for a pre-check</h3>
+  <span class="pill-chip pill-chip--yellow">{{ rows|length }} waiting</span>
+</div>
+<div class="queue" data-live-queue>
+  {% for r in rows %}
+  <article class="qrow">
+    <span class="qrow__avatar">{{ r.visit.patient.initials }}</span>
+    <div class="qrow__who">
+      <span class="qrow__name">{{ r.visit.patient.full_name }}</span>
+      <span class="qrow__meta">{{ r.visit.patient.code }} · DOB: {{ r.visit.patient.date_of_birth|date:"M d, Y" }}{% if r.visit.patient.allergy_status == 'listed' %} · <b class="text-danger">Allergies</b>{% elif r.visit.patient.allergy_status == 'unknown' %} · <b class="text-warn">Allergies not recorded</b>{% endif %}</span>
+    </div>
+    <div class="qrow__right">
+      {% if r.visit.priority == 'urgent' %}<span class="pill-chip pill-chip--red">Urgent</span>{% elif r.visit.priority == 'priority' %}<span class="pill-chip pill-chip--yellow">Priority</span>{% endif %}
+      <span class="qrow__wait">Waiting {{ r.wait }}m</span>
+      {% if r.visit.status == 'in_triage' and r.mine %}
+        <a href="{% url 'triage_form' r.visit.pk %}" class="abtn abtn--green abtn--sm">Continue pre-check</a>
+      {% elif r.visit.status == 'in_triage' %}
+        <span class="qrow__handler">In progress: {{ r.handler }}</span>
+        <form method="post" action="{% url 'triage_takeover' r.visit.pk %}" data-confirm-submit="Take this pre-check over from {{ r.handler }}?">{% csrf_token %}<button type="submit" class="abtn abtn--ghost abtn--sm">Take over</button></form>
+      {% else %}
+        <form method="post" action="{% url 'triage_start' r.visit.pk %}">{% csrf_token %}<button type="submit" class="abtn abtn--blue abtn--sm">Start pre-check</button></form>
+      {% endif %}
+      <details class="closer closer--inline">
+        <summary aria-label="Close this visit">⋯</summary>
+        <form method="post" action="{% url 'visit_close' r.visit.pk %}" class="closer__form">
+          {% csrf_token %}<input type="hidden" name="next" value="{% url 'triage_queue' %}">
+          <select name="outcome" aria-label="What happened">{% for value, label in close_outcomes %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select>
+          <input type="text" name="reason" maxlength="200" placeholder="Reason (required to cancel)" aria-label="Reason">
+          <button type="submit" class="abtn abtn--ghost abtn--sm">Close visit</button>
+        </form>
+      </details>
+    </div>
+  </article>
+  {% empty %}
+  <p class="muted-empty">No patients are waiting for a pre-check. <a href="{% url 'patient_create' %}">Register a new patient</a>.</p>
+  {% endfor %}
+</div>

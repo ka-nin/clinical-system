@@ -1,0 +1,66 @@
+{% extends "portal/base.html" %}
+{% block page_title %}My Profile{% endblock %}
+{% block crumb %}My Profile{% endblock %}
+{% block heading %}My Profile{% endblock %}
+
+{% block content %}
+<div class="pnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+  <span>You are viewing your personal health record. Contact the student health clinic to request modifications or update your registration details.</span></div>
+
+{% if not patient %}
+  {% include "portal/_unlinked.html" %}
+  {% if profile %}
+  <section class="pprofile">
+    <div class="pprofile__head"><span class="pprofile__avatar">{{ me.initials }}</span>
+      <div><h2 class="pprofile__name">{{ user.get_full_name|default:user.username }}</h2><p class="pprofile__sub">Student portal account</p></div></div>
+    <dl class="pfacts">
+      <div><dt>Student ID</dt><dd>{{ profile.student_id|default:"—" }}</dd></div>
+      <div><dt>Date of birth</dt><dd>{{ profile.date_of_birth|date:"M d, Y"|default:"—" }}</dd></div>
+      <div><dt>Contact phone</dt><dd>{{ profile.phone|default:"—" }}</dd></div>
+      <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
+    </dl>
+  </section>
+  {% endif %}
+{% else %}
+  <section class="pprofile">
+    <div class="pprofile__head">
+      <span class="pprofile__avatar">{{ patient.initials }}</span>
+      <div><h2 class="pprofile__name">{{ patient.full_name }}</h2><p class="pprofile__sub">Student{% if profile.student_id %} · ID {{ profile.student_id }}{% endif %}</p></div>
+      <span class="pprofile__chip{% if not patient.is_active %} pprofile__chip--off{% endif %}">{% if patient.is_active %}ACTIVE RECORD{% else %}INACTIVE RECORD{% endif %}</span>
+    </div>
+    <dl class="pfacts">
+      <div><dt>Student ID</dt><dd>{{ profile.student_id|default:"—" }}</dd></div>
+      <div><dt>Date of birth</dt><dd>{{ patient.date_of_birth|date:"M d, Y" }} ({{ patient.age }} yrs)</dd></div>
+      <div><dt>Contact phone</dt><dd>{{ patient.phone }}</dd></div>
+      <div><dt>Address</dt><dd>{{ patient.address }}</dd></div>
+      <div><dt>Emergency contact</dt><dd>{% if patient.emergency_contact_name %}{{ patient.emergency_contact_name }} ({{ patient.emergency_phone }}){% else %}—{% endif %}</dd></div>
+      <div><dt>Allergies</dt><dd>{{ patient.allergies|default:"Not recorded" }}</dd></div>
+      <div><dt>Blood type</dt><dd>{{ patient.get_blood_type_display|default:"—" }}</dd></div>
+    </dl>
+  </section>
+
+  <h3 class="ptitle">Latest Triage Vitals Quick View</h3>
+  {% if tiles %}
+  <section class="ptiles">
+    {% for t in tiles %}
+    <article class="ptile">
+      <div class="ptile__top"><span>{{ t.label }}</span>{% if t.badge %}<i class="pbadge pbadge--{{ t.badge.1 }}">{{ t.badge.0 }}</i>{% endif %}</div>
+      <div class="ptile__val">{{ t.value }} <small>{{ t.unit }}</small></div>
+      <p class="ptile__meta">{{ t.meta }}</p>
+    </article>
+    {% endfor %}
+  </section>
+  {% else %}<p class="muted-empty">No vitals have been recorded yet.</p>{% endif %}
+
+  <section class="pvisits">
+    <h3 class="ptitle ptitle--in">Recent Visits Summary</h3>
+    {% for v in summaries %}
+    <article class="pvisit">
+      <div><time>{{ v.date }}</time><small>{{ v.doctor }}</small></div>
+      <div><h4>{{ v.title }}</h4><p>{{ v.text }}</p></div>
+    </article>
+    {% empty %}<p class="muted-empty">Completed visits will appear here.</p>{% endfor %}
+    <p class="pvisits__more"><a href="{% url 'portal_visits' %}">See all visits</a> · <a href="{% url 'portal_records' %}">Medical records &amp; documents</a></p>
+  </section>
+{% endif %}
+{% endblock %}

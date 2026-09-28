@@ -1,0 +1,11 @@
+# Local development. Uses the pure-Python MySQL driver so nothing needs compiling.
+Django>=5.1,<5.3
+whitenoise>=6.7
+dj-database-url>=2.2
+gunicorn>=22.0
+django-axes>=7,<9
+pyotp>=2.9
+segno>=1.6
+PyMySQL>=1.1
+pytest>=8.0
+pytest-django>=4.8

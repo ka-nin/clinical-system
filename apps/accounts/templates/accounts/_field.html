@@ -1,0 +1,5 @@
+<div class="reg__field{% if span_full %} reg__field--full{% endif %}{% if field.errors %} has-error{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ label }}{% if not optional %} <span class="req">*</span>{% endif %}</label>
+  {{ field }}
+  {% for error in field.errors %}<p class="reg__err">{{ error }}</p>{% endfor %}
+</div>

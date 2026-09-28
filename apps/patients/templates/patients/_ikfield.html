@@ -1,0 +1,5 @@
+<div class="ik__field{% if wide %} ik__field--wide{% endif %}{% if field.errors %} has-error{% endif %}"{% if group %} data-role-group="{{ group }}"{% endif %}>
+  <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
+  {{ field }}
+  {% for error in field.errors %}<p class="ik__err">{{ error }}</p>{% endfor %}
+</div>

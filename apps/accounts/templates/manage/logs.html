@@ -1,0 +1,18 @@
+{% extends "manage/base.html" %}
+{% block page_title %}Audit &amp; Security logs{% endblock %}
+{% block crumb %}Admin <span>/</span> Security Logs{% endblock %}
+{% block heading %}Audit &amp; Security logs{% endblock %}
+{% block topbar_right %}
+<div class="logtop">
+  <form method="post" action="{% url 'manage_logs_verify' %}">{% csrf_token %}<button type="submit" class="abtn abtn--ghost abtn--sm">Verify integrity</button></form>
+  <a href="?{% if qs %}{{ qs }}&{% endif %}export=csv" class="abtn abtn--ghost abtn--sm logtop__export" data-confirm="Export the entries you are looking at to a CSV file? The export is itself recorded in the log.">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>Export Log Session</a>
+  <div class="shift"><span class="shift__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>Audit Trail</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="live" data-live="{% url 'manage_logs' %}?{% if qs %}{{ qs }}&{% endif %}{% if page.number > 1 %}page={{ page.number }}&{% endif %}fragment=1">
+  <div data-live-body class="live__body">{% include "manage/_logs_live.html" %}</div>
+</div>
+{% endblock %}

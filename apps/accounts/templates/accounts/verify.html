@@ -1,0 +1,16 @@
+{% extends "accounts/card_base.html" %}
+{% block page_title %}Verification code{% endblock %}
+{% block card %}
+<span class="reg__pill">TWO-STEP SIGN-IN</span>
+<h1>Enter your code</h1>
+<p class="reg__lead">Open your authenticator app and type the 6-digit code for CareBoard. Lost your phone? Use one of your recovery codes instead.</p>
+<form method="post" class="reg__form" novalidate>
+  {% csrf_token %}
+  {% if error %}<div class="reg__formerr">{{ error }}</div>{% endif %}
+  <div class="reg__field">
+    <label for="code">Code</label>
+    <input type="text" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" autofocus required placeholder="123456 or abcd-1234">
+  </div>
+  <button type="submit" class="reg__submit">Verify and sign in</button>
+</form>
+{% endblock %}

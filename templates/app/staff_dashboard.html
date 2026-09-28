@@ -1,0 +1,10 @@
+{% extends "app/base.html" %}
+{% block page_title %}Clinical Command Center{% endblock %}
+
+{% block nav %}{% include "app/_staff_nav.html" with active="dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="live" data-live="{% url 'dashboard_live' %}" data-live-role="{{ me.role }}">
+  <div data-live-body class="live__body">{% include "app/_staff_live.html" %}</div>
+</div>
+{% endblock %}

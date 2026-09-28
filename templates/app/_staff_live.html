@@ -1,0 +1,73 @@
+{% if stale_count %}
+<div class="flash flash--warn">{{ stale_count }} visit{{ stale_count|pluralize }} from before today {{ stale_count|pluralize:"is,are" }} still open. If those patients have left, close {{ stale_count|pluralize:"it,them" }}{% if me.clinical %} from <a href="{% url 'triage_queue' %}">the triage list</a>{% else %} from the patient's record{% endif %}.</div>
+{% endif %}
+<section class="banner">
+  <div>
+    <h2>{{ greeting }}</h2>
+    <p>You have {{ waiting_label }} waiting in the triage queue and {{ completed_today }} completed consultation{{ completed_today|pluralize }} today.</p>
+  </div>
+  <div class="banner__actions">
+    {% if me.clinical %}
+    <a href="{% url 'triage_queue' %}" class="abtn abtn--green">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v5.5L5.5 18a1.5 1.5 0 0 0 1.3 2.2h10.4A1.5 1.5 0 0 0 18.5 18L14 8.5V3"/><path d="M3 21h18"/></svg>
+      Start Triage pre-check
+    </a>
+    {% endif %}
+    <a href="{% url 'patient_create' %}" class="abtn abtn--blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      Register New Patient
+    </a>
+  </div>
+</section>
+
+<section class="stats" aria-label="Today at a glance">
+  {% for card in stat_cards %}
+  <article class="stat">
+    <span class="stat__label">{{ card.label }}</span>
+    <span class="stat__value">{{ card.value }}</span>
+    <span class="stat__sub">{{ card.sub }}</span>
+  </article>
+  {% endfor %}
+</section>
+
+<div class="lower">
+  <section class="panel">
+    <div class="panel__head">
+      <h3>Today's Live Queue Flow</h3>
+      <span class="pill-chip pill-chip--yellow">{{ queue_count }} Active Waiting</span>
+    </div>
+    <div class="queue">
+      {% for p in queue %}
+      <a href="{% url 'patient_detail' p.pk %}" class="qrow qrow--link">
+        <span class="qrow__avatar">{{ p.initials }}</span>
+        <div class="qrow__who">
+          <span class="qrow__name">{{ p.name }}</span>
+          <span class="qrow__meta">{{ p.pid }} · DOB: {{ p.dob }}</span>
+        </div>
+        <div class="qrow__right">
+          <span class="qrow__stage">{{ p.stage }}</span>
+          <span class="pill-chip pill-chip--{{ p.tone }}">{{ p.status }}</span>
+          <span class="qrow__wait">{{ p.wait }}</span>
+        </div>
+      </a>
+      {% empty %}
+      <p class="muted-empty">Nobody is in the queue. Register a patient to get started.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel audit-panel">
+    <div class="panel__head"><h3>My Recent Activity</h3></div>
+    <div class="alog">
+      {% for e in activity %}
+      <article class="alog__item">
+        <div class="alog__top"><span class="alog__time">{{ e.time }}</span><span class="alog__tag alog__tag--{{ e.kind|lower }}">{{ e.kind }}</span></div>
+        <p class="alog__text">{{ e.text }}</p>
+      </article>
+      {% empty %}
+      <p class="muted-empty">Your actions will show up here.</p>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{{ alerts|json_script:"live-alerts" }}

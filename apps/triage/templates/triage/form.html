@@ -1,0 +1,81 @@
+{% extends "app/base.html" %}
+{% block page_title %}Triage &amp; Clinical Pre-Check{% endblock %}
+{% block crumb %}<a href="{% url 'triage_queue' %}">Triage &amp; Vitals</a>{% endblock %}
+{% block heading %}Triage &amp; Clinical Pre-Check{% endblock %}
+{% block nav %}{% include "app/_staff_nav.html" with active="triage" %}{% endblock %}
+
+{% block content %}
+<section class="ptcard">
+  <span class="ptcard__avatar">{{ patient.initials }}</span>
+  <div class="ptcard__who">
+    <h2>{{ patient.full_name }}</h2>
+    <p>ID: Patient #{{ patient.short_code }} · DOB: {{ patient.date_of_birth|date:"M d, Y" }} ({{ patient.age }} y/o){% if patient.blood_type %} · Blood: {{ patient.blood_type_short }}{% endif %}</p>
+  </div>
+  <span class="waitchip{% if wait < 10 %} waitchip--ok{% endif %}"><i></i>Triage Wait Timer: {{ wait }}m</span>
+</section>
+{% include "patients/_allergy_banner.html" %}
+
+{% if draft_loaded %}<div class="flash flash--info">Your saved progress was restored. Review it, then complete the triage.</div>{% endif %}
+
+<form method="post" class="tri" novalidate data-triage data-assess="{% url 'triage_assess' visit.pk %}">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="reg__formerr">{{ form.non_field_errors }}</div>{% endif %}
+
+  <div class="tri__stack">
+    <div class="vgrid">
+      {% include "triage/_vital.html" with field=form.temperature_c unit="°C" badge="temp" %}
+      {% include "triage/_vital.html" with field=form.blood_pressure unit="mmHg" badge="bp" %}
+      {% include "triage/_vital.html" with field=form.pulse unit="bpm" badge="pulse" %}
+      {% include "triage/_vital.html" with field=form.respiratory_rate unit="breaths/min" badge="resp" %}
+      {% include "triage/_vital.html" with field=form.oxygen_sat unit="%" badge="spo2" %}
+      {% include "triage/_vital.html" with field=form.pain_score unit="/ 10" badge="pain" %}
+      {% include "triage/_vital.html" with field=form.weight_kg unit="kg" badge="weight" %}
+      {% include "triage/_vital.html" with field=form.height_cm unit="cm" badge="height" %}
+    </div>
+
+    <section class="assess">
+      {% if form.allergies %}
+      <h3><label for="{{ form.allergies.id_for_label }}">{{ form.allergies.label }} <span class="req">*</span></label></h3>
+      {{ form.allergies }}
+      {% for error in form.allergies.errors %}<p class="ik__err">{{ error }}</p>{% endfor %}
+      <div class="assess__gap"></div>
+      {% endif %}
+
+      <h3><label for="{{ form.chief_complaint.id_for_label }}">{{ form.chief_complaint.label }}</label></h3>
+      {{ form.chief_complaint }}
+      {% for error in form.chief_complaint.errors %}<p class="ik__err">{{ error }}</p>{% endfor %}
+
+      <h3 class="assess__sub" id="priority-label">{{ form.priority.label }}</h3>
+      <div class="prio" role="radiogroup" aria-labelledby="priority-label">
+        {% for radio in form.priority %}
+        <label class="prio__opt prio__opt--{{ radio.data.value }}">{{ radio.tag }}<span><i></i>{{ radio.choice_label }}</span></label>
+        {% endfor %}
+      </div>
+      {% for error in form.priority.errors %}<p class="ik__err">{{ error }}</p>{% endfor %}
+
+      <div class="suggest" data-suggest hidden>
+        <strong>Suggested from the vitals: <span data-suggest-level></span></strong>
+        <ul data-suggest-reasons></ul>
+        <small>A reference only. You decide the level, and explain any lower choice.</small>
+      </div>
+      <div class="assess__override" data-override {% if not form.override_reason.errors %}hidden{% endif %}>
+        <label for="{{ form.override_reason.id_for_label }}">{{ form.override_reason.label }} <span class="req">*</span></label>
+        {{ form.override_reason }}
+        {% for error in form.override_reason.errors %}<p class="ik__err">{{ error }}</p>{% endfor %}
+      </div>
+
+      <label class="checkline"><input type="checkbox" name="identity_verified" {% if form.identity_verified.value %}checked{% endif %}> {{ form.identity_verified.label }}</label>
+      {% for error in form.identity_verified.errors %}<p class="ik__err">{{ error }}</p>{% endfor %}
+
+      <div class="ik__actions">
+        <button type="submit" name="action" value="draft" class="ik__btn ik__btn--ghost">Save Progress</button>
+        <button type="submit" name="action" value="complete" class="ik__btn ik__btn--green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          Complete Triage &amp; Send to Doctor
+        </button>
+      </div>
+      <p class="formpanel__note">Completed vitals become part of the patient's permanent record. A mistake can be corrected later, and the original value is kept.</p>
+    </section>
+  </div>
+</form>
+{% endblock %}

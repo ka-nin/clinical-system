@@ -1,0 +1,57 @@
+{% extends "manage/base.html" %}
+{% block page_title %}User Identity Vault{% endblock %}
+{% block crumb %}Admin <span>/</span> Users{% endblock %}
+{% block heading %}User Identity Vault{% endblock %}
+
+{% block content %}
+{% if pending %}
+<h3 class="ptitle">Pending Clinical Staff Activations</h3>
+{% include "manage/_pending.html" with next=request.get_full_path %}
+{% endif %}
+
+<section class="panel dir">
+  <form method="get" class="dir__toolbar">
+    <label class="dir__search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="search" name="q" value="{{ q }}" placeholder="Search Active Users…" aria-label="Search users">
+    </label>
+    <label class="dir__status">Role:
+      <select name="role" data-autosubmit aria-label="Filter by role">
+        <option value="" {% if not role %}selected{% endif %}>All System Roles</option>
+        <option value="admin" {% if role == 'admin' %}selected{% endif %}>Administrator</option>
+        <option value="staff" {% if role == 'staff' %}selected{% endif %}>Clinic Staff</option>
+        <option value="student" {% if role == 'student' %}selected{% endif %}>Student</option>
+      </select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+    </label>
+    <a href="{% url 'manage_user_new' %}" class="abtn abtn--blue um__add">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      Add New User Instance
+    </a>
+  </form>
+
+  <div class="um__table" role="table" aria-label="Users">
+    <div class="um__row um__row--head" role="row">
+      <span>Name</span><span>Email</span><span>Role</span><span>Status</span><span>Last Login</span><span>Actions</span>
+    </div>
+    {% for r in rows %}
+    <div class="um__row" role="row">
+      <span class="um__name">{{ r.name }}{% if r.job %}<small>{{ r.job }}</small>{% endif %}</span>
+      <span class="um__email">{{ r.user.email }}</span>
+      <span><i class="rolebadge rolebadge--{{ r.kind }}">{{ r.kind_label }}</i></span>
+      <span><i class="statusbadge statusbadge--{{ r.status.0 }}">{{ r.status.1 }}</i></span>
+      <span class="um__last">{{ r.last }}</span>
+      <span>{% include "manage/_actions.html" with next=request.get_full_path %}</span>
+    </div>
+    {% empty %}<p class="muted-empty">No users match.</p>{% endfor %}
+  </div>
+
+  <div class="dir__foot">
+    <span>Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }} user{{ page.paginator.count|pluralize }}</span>
+    <div class="dir__pager">
+      {% if page.has_previous %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.previous_page_number }}" class="dir__pbtn">Previous</a>{% else %}<span class="dir__pbtn is-off">Previous</span>{% endif %}
+      {% if page.has_next %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.next_page_number }}" class="dir__pbtn dir__pbtn--next">Next</a>{% else %}<span class="dir__pbtn dir__pbtn--next is-off">Next</span>{% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

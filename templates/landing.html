@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+{% include "partials/navbar.html" %}
+
+<main>
+  <!-- HERO -->
+  <section class="hero" id="overview">
+    <div class="container">
+      <h1 class="hero__title">Replace Paper Clinical Folders with<br><span class="text-primary">One Unified Patient Record</span></h1>
+      <p class="hero__lead">Replace misplaced registration slips, paper medical history folders, and manual triage pre-check cards. Connect your reception, nursing station, and consultation room instantly.</p>
+      <div class="hero__cta">
+        <a href="{% url 'login' %}" class="btn btn--primary btn--lg">Get Started Free {% include "partials/arrow.html" %}</a>
+        <a href="#flow" class="btn btn--soft btn--lg">Learn How It Works</a>
+      </div>
+
+      <div class="record" aria-label="Sample patient record">
+        <div class="record__head">
+          <div class="record__who">
+            <span class="avatar">EH</span>
+            <div>
+              <div class="record__name">Elizabeth Hughes</div>
+              <div class="record__meta">ID: Patient #984-219 · DOB: Oct 14, 1988 (35 y/o)</div>
+            </div>
+          </div>
+          <div class="record__badges">
+            <span class="chip chip--green">In Consultation</span>
+            <span class="chip chip--blue">Staff: Dr. Henderson</span>
+          </div>
+        </div>
+
+        <div class="record__body">
+          <div class="record__left">
+            <div class="panel panel--tint">
+              <h3 class="panel__title">DEMOGRAPHICS</h3>
+              <dl class="kv">
+                <div><dt>Contact</dt><dd>+1 (555) 019-2831</dd></div>
+                <div><dt>Address</dt><dd>842 Hilltop Dr, Apt 4C</dd></div>
+                <div><dt>Blood Type</dt><dd>A-Positive</dd></div>
+                <div><dt>Allergies</dt><dd class="text-danger">Penicillin, Tree Nuts</dd></div>
+              </dl>
+            </div>
+            <div class="panel panel--bordered">
+              <h3 class="panel__title">TRIAGE VITALS (PRE-CHECK)</h3>
+              <ul class="vitals">
+                <li><div><span>Blood Pressure</span><strong>118 / 74 mmHg</strong></div><em class="tag-ok">Optimal</em></li>
+                <li><div><span>Heart Rate</span><strong>72 bpm</strong></div><em class="tag-ok">Normal</em></li>
+                <li><div><span>Body Temp</span><strong>36.8 °C</strong></div><em class="tag-ok">Normal</em></li>
+                <li><div><span>Oxygen Sat</span><strong>99%</strong></div><em class="tag-ok">Optimal</em></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="record__right panel panel--tint">
+            <div class="record__right-head">
+              <h3>Consolidated Medical History &amp; Consultation Notes</h3>
+              <div class="seg"><span class="seg__item">All Visits</span><span class="seg__item seg__item--on">New Entry</span></div>
+            </div>
+            <article class="note">
+              <div class="note__top"><span class="note__label">TODAY - CONSULTATION</span><span class="note__time">10:15 AM</span></div>
+              <p>Patient presents with mild, dry cough for 3 days. No fever, clear lungs on auscultation. Pre-check vitals are stable. Prescribed local throat demulcents and hydration.</p>
+            </article>
+            <article class="note">
+              <div class="note__top"><span class="note__label note__label--teal">SEP 12, 2023 - LAB RESULTS</span><span class="note__time">Complete Blood Count</span></div>
+              <p>All parameters within reference range. Hemoglobin 13.8 g/dL. Platelets 220,000 /µL. File uploaded directly to permanent cloud vault.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PATIENT JOURNEY -->
+  <section class="section section--tint" id="flow">
+    <div class="container">
+      <div class="section__head section__head--center">
+        <span class="pill">PATIENT JOURNEY FLOW</span>
+        <h2>Four Stages, One Continuous Digital Record</h2>
+        <p>See how CuraRecord eliminates physical medical folders and paper slips at every touchpoint. Information moves instantly without manual handoffs.</p>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <div class="step__top"><span class="step__num">1</span><span class="tag-teal">Reception Station</span></div>
+          <h3>Digital Registration</h3>
+          <p>Patient registers digitally on a kiosk or tablet. Intake details populate the unified patient record instantly, eliminating paper forms forever.</p>
+        </article>
+        <article class="step">
+          <div class="step__top"><span class="step__num">2</span><span class="tag-teal">Nursing &amp; Triage</span></div>
+          <h3>Clinical Pre-Check</h3>
+          <p>Nurses record vitals (BP, heart rate, temp, weight) directly into the record. No more paper pre-check slips passed around the clinic.</p>
+        </article>
+        <article class="step">
+          <div class="step__top"><span class="step__num">3</span><span class="tag-teal">Consultation Room</span></div>
+          <h3>Unified Consultation</h3>
+          <p>Doctors open the exact same patient file, instantly reviewing vitals and clinical history to diagnose and prescribe without folder searching.</p>
+        </article>
+        <article class="step">
+          <div class="step__top"><span class="step__num">4</span><span class="tag-teal">Permanent Storage</span></div>
+          <h3>Update &amp; Secure Vault</h3>
+          <p>Consultation notes, prescriptions, and lab data are permanently saved to the patient's record for seamless future visits.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CORE MODULES -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section__head">
+        <span class="pill">CORE MODULES</span>
+        <h2>Everything Needed for Paperless Clinical Administration</h2>
+        <p>Modular clinical interfaces built specifically to support your clinical workflows while locking down data integrity.</p>
+      </div>
+      <div class="features">
+        <article class="feature">
+          <span class="icon-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.66V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.66"/></svg></span>
+          <h3>Patient Intake &amp; Demographics</h3>
+          <p>Completely replaces handwritten patient clipboards. Patients fill their profile once—onboarded with digital identity verification, insurance capture, and contact history. Access is unlocked for future visits with a simple search.</p>
+          <div class="tags"><span>Digital Registration</span><span>Insurance Scanner</span><span>ID Validation</span></div>
+        </article>
+        <article class="feature">
+          <span class="icon-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span>
+          <h3>Triage &amp; Vitals Dashboard</h3>
+          <p>Enables medical staff to record patient vitals on tablet or desktop. Clinical parameters automatically highlight outliers, alarming of abnormal BP or fevers before they step into consultation.</p>
+          <div class="tags"><span>Real-time Pre-check</span><span>Abnormal Vital Alert</span><span>Growth Charts</span></div>
+        </article>
+        <article class="feature">
+          <span class="icon-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></span>
+          <h3>Continuous Clinical History</h3>
+          <p>The complete longitudinal record per patient. Diagnoses, prescriptions, diagnostic images, and historical clinical logs are compiled into a chronological feed. Instantly searchable by keyword or doctor.</p>
+          <div class="tags"><span>Searchable Records</span><span>Digital Prescriptions</span><span>Lab Integrations</span></div>
+        </article>
+        <article class="feature">
+          <span class="icon-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r=".6" fill="currentColor"/></svg></span>
+          <h3>Role-Based Security Levels</h3>
+          <p>Control read and write permissions with extreme precision. Three distinct tiers restrict clinical notes only to physicians, operational records to administrators, and view-only personal pages to patients/students.</p>
+          <div class="tags"><span>Clinic Staff</span><span>Systems Admin</span><span>View-Only Patient Portal</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CURARECORD -->
+  <section class="section section--tint section--why">
+    <div class="container why">
+      <div class="why__media">
+        <img src="{% static 'img/clinic-team.jpg' %}" alt="A doctor and a nurse reviewing a patient record on a tablet" width="560" height="346">
+        <div class="why__badge">
+          <span class="why__check"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <div><strong>Fast Record Retrieval</strong><span>Reduced file search time to &lt; 2 seconds</span></div>
+        </div>
+      </div>
+      <div class="why__copy">
+        <span class="pill">WHY CURARECORD</span>
+        <h2>Say Goodbye to Misfiled Folders &amp; Lost Slips</h2>
+        <p class="why__lead">Traditional paper systems lead to duplicate records, slow clinical workflows, and critical handwriting transcription errors. Here is how your clinic improves.</p>
+        <ul class="checks">
+          <li><span class="check-ico">{% include "partials/arrow.html" %}</span><div><h4>No More Misfiled Folders</h4><p>Digital indexes ensure patient records are instantly retrievable. Files can never get lost behind cabinets.</p></div></li>
+          <li><span class="check-ico">{% include "partials/arrow.html" %}</span><div><h4>Zero Data Re-Entry</h4><p>Information entered at registration populates straight into the doctor's screen. No more transcription typos.</p></div></li>
+          <li><span class="check-ico">{% include "partials/arrow.html" %}</span><div><h4>Universal Authorized Access</h4><p>Consult records safely from any tablet, desk, or clinic branch instantly under clinical encryption.</p></div></li>
+          <li><span class="check-ico">{% include "partials/arrow.html" %}</span><div><h4>Nothing Overwritten or Ruined</h4><p>Completed notes and recorded vitals are never overwritten. Corrections are added alongside the original.</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section class="section section--security" id="security">
+    <div class="container">
+      <div class="section__head section__head--center section__head--narrow">
+        <span class="pill">SECURITY &amp; PRIVACY</span>
+        <h2>Built for Privacy &amp; Complete Audit Trails</h2>
+        <p>Patient information deserves careful handling. CuraRecord limits access by role and records who did what.</p>
+      </div>
+      <div class="security">
+        <ul class="sec-list">
+          <li>
+            <span class="icon-box icon-box--sm"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <div><h4>Privacy by Design</h4><p>Access is limited by role, sessions time out, and every connection is served over HTTPS in production.</p></div>
+          </li>
+          <li>
+            <span class="icon-box icon-box--sm"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg></span>
+            <div><h4>Granular Role Permissions</h4><p>Precisely define what staff, administrators, and patients can read, write, or download—never compromising privacy.</p></div>
+          </li>
+          <li>
+            <span class="icon-box icon-box--sm"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span>
+            <div><h4>Tamper-Evident Audit Trails</h4><p>Every record access, edit and change is logged, and the log is chained so that later changes can be detected.</p></div>
+          </li>
+        </ul>
+
+        <div class="audit" aria-label="Sample audit log">
+          <div class="audit__head"><span class="audit__title"><i class="dot"></i>LIVE AUDIT LOGS (PHI TRACK)</span><span class="audit__upd">Updated just now</span></div>
+          <div class="audit__row"><div><p><strong>Dr. Clara Henderson —</strong> Accessed Patient File</p><small>Target: Elizabeth Hughes · Timestamp: 11:42:01 AM</small></div><span class="status status--green">AUTHORIZED</span></div>
+          <div class="audit__row"><div><p><strong>Nurse David Lee —</strong> Updated Vitals / BP</p><small>Target: Elizabeth Hughes · Timestamp: 11:38:15 AM</small></div><span class="status status--blue">MODIFIED</span></div>
+          <div class="audit__row"><div><p><strong>Staff Admin Sarah Cole —</strong> Registered New Patient</p><small>Target: Thomas Vance · Timestamp: 11:15:30 AM</small></div><span class="status status--green">CREATED</span></div>
+          <div class="audit__row"><div><p><strong>System System Integration —</strong> Scheduled Data Backup</p><small>Target: Data Vault #4 · Timestamp: 10:55:12 AM</small></div><span class="status status--gray">SYSTEM</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="faqs">
+    <div class="container cta__inner">
+      <h2>Modernize Your Medical Operations Today</h2>
+      <p>Ditch the paper pre-check slips, the misplaced folders, and messy handoffs.<br>Experience the ease of CuraRecord in your clinic branches.</p>
+      <div class="cta__buttons">
+        <a href="{% url 'login' %}" class="btn btn--primary btn--lg">Book Free Trial Setup {% include "partials/arrow.html" %}</a>
+        <a href="#faqs" class="btn btn--white btn--lg">Talk to Medical Consultant</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% include "partials/footer.html" %}
+{% endblock %}
