@@ -10,3 +10,5 @@ build/
 .DS_Store
 # Licensed Adobe Stock original (the site uses the resized copy in static/img)
 design/
+# Documents that contain the demo accounts and password
+docs/*.docx
