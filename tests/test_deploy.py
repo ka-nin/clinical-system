@@ -118,3 +118,12 @@ def test_everyone_can_change_their_own_password(as_role):
     r = nurse.post(reverse("password_change"), {"old_password": PW, "new_password1": "My-New-Passw0rd!", "new_password2": "My-New-Passw0rd!"})
     assert r.status_code == 302 and Client().login(username="nurse.reyes@careboard.demo", password="My-New-Passw0rd!")
     assert Client().get(reverse("password_change")).status_code == 302                 # needs sign-in
+
+
+def test_gunicorn_stand_in_reads_the_address():
+    from gunicorn.__main__ import _address
+
+    assert _address(["config.wsgi:application", "--bind", "0.0.0.0:9000"]) == ("0.0.0.0", 9000)
+    assert _address(["-b", "127.0.0.1:81", "x"]) == ("127.0.0.1", 81)
+    assert _address(["--bind=[::]:8080"]) == ("::", 8080)
+    assert _address(["config.wsgi"]) == ("0.0.0.0", int(os.environ.get("PORT", "8000")))
