@@ -58,6 +58,12 @@ Or share a demo login (all demo accounts use the `DEMO_PASSWORD`):
 | Student | student@careboard.demo |
 | Administrator | admin@careboard.demo (keep this one to yourself) |
 
+## Deploying from GitHub (Wasmer dashboard)
+- Start command: `uvicorn config.asgi:app --host 0.0.0.0 --port 8000`
+  (not gunicorn: it cannot run inside Wasmer's sandbox).
+- Environment variables: `DJANGO_SETTINGS_MODULE=config.settings.prod`, `DEMO_MODE=1`, `AUTO_SETUP=1`,
+  plus `DJANGO_SECRET_KEY` and `DEMO_PASSWORD` from `build/deploy-secrets.env`. Leave the database rows as Wasmer fills them.
+
 ## Good to know
 - Redeploying keeps all data. To start over with fresh demo data, delete the app's database in the Wasmer
   dashboard; the app recreates it on the next start.

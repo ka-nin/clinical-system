@@ -2,7 +2,7 @@ Django>=5.1,<5.3
 whitenoise>=6.7
 dj-database-url>=2.2
 psycopg[binary]>=3.1  # only if you use DATABASE_URL=postgres://...
-gunicorn>=22.0
+uvicorn>=0.30  # server used on Wasmer (gunicorn cannot run there)
 django-axes>=7,<9
 pyotp>=2.9
 segno>=1.6

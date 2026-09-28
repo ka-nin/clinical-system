@@ -5,7 +5,7 @@ description = "CareBoard clinic record system (demo deployment)"
 requires-python = ">=3.12"
 dependencies = [
     "django>=5.1,<5.3",
-    "gunicorn>=23.0.0",
+    "uvicorn>=0.30",  # plain uvicorn: runs inside Wasmer's sandbox (gunicorn does not)
     "whitenoise>=6.7",
     "dj-database-url>=2.2",
     "django-axes>=7,<9",
