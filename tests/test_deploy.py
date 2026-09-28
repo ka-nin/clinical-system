@@ -76,12 +76,9 @@ def test_demo_password_can_come_from_a_secret(db):
 
 # ---- demo mode behaviour ----------------------------------------------------------------------------------------
 @override_settings(DEMO_MODE=True)
-def test_demo_banner(as_role):
-    assert "Do not enter real patient information" in as_role("nurse").get(reverse("dashboard")).content.decode()
-
-
-def test_no_banner_outside_demo_mode(as_role):
-    assert "Do not enter real patient information" not in as_role("nurse").get(reverse("dashboard")).content.decode()
+def test_no_demo_banner_even_in_demo_mode(as_role, client):
+    assert "Demo system for learning" not in as_role("nurse").get(reverse("dashboard")).content.decode()
+    assert "Demo system for learning" not in client.get(reverse("home")).content.decode()
 
 
 @override_settings(DEMO_MODE=True)

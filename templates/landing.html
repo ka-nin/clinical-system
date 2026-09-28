@@ -15,56 +15,56 @@
         <a href="#flow" class="btn btn--soft btn--lg">Learn How It Works</a>
       </div>
 
-      <div class="record" aria-label="Sample patient record">
+      <div class="record" aria-label="Live clinic snapshot">
         <div class="record__head">
           <div class="record__who">
-            <span class="avatar">EH</span>
+            <span class="avatar">CB</span>
             <div>
-              <div class="record__name">Elizabeth Hughes</div>
-              <div class="record__meta">ID: Patient #984-219 · DOB: Oct 14, 1988 (35 y/o)</div>
+              <div class="record__name">Live Clinic Snapshot</div>
+              <div class="record__meta">Read from the live database · updated {{ live.updated }} · no patient details are shown here</div>
             </div>
           </div>
           <div class="record__badges">
-            <span class="chip chip--green">In Consultation</span>
-            <span class="chip chip--blue">Staff: Dr. Henderson</span>
+            <span class="chip chip--green">{{ live.active }} active visit{{ live.active|pluralize }}</span>
+            <span class="chip chip--blue">{{ live.visits_today }} visit{{ live.visits_today|pluralize }} today</span>
           </div>
         </div>
 
         <div class="record__body">
           <div class="record__left">
             <div class="panel panel--tint">
-              <h3 class="panel__title">DEMOGRAPHICS</h3>
+              <h3 class="panel__title">RECORDS ON FILE</h3>
               <dl class="kv">
-                <div><dt>Contact</dt><dd>+1 (555) 019-2831</dd></div>
-                <div><dt>Address</dt><dd>842 Hilltop Dr, Apt 4C</dd></div>
-                <div><dt>Blood Type</dt><dd>A-Positive</dd></div>
-                <div><dt>Allergies</dt><dd class="text-danger">Penicillin, Tree Nuts</dd></div>
+                <div><dt>Registered patients</dt><dd>{{ live.patients }}</dd></div>
+                <div><dt>Completed consultations</dt><dd>{{ live.consultations }}</dd></div>
+                <div><dt>Documents on file</dt><dd>{{ live.documents }}</dd></div>
+                <div><dt>Audit log entries</dt><dd>{{ live.audit_total }}</dd></div>
               </dl>
             </div>
             <div class="panel panel--bordered">
-              <h3 class="panel__title">TRIAGE VITALS (PRE-CHECK)</h3>
+              <h3 class="panel__title">TODAY'S QUEUE</h3>
               <ul class="vitals">
-                <li><div><span>Blood Pressure</span><strong>118 / 74 mmHg</strong></div><em class="tag-ok">Optimal</em></li>
-                <li><div><span>Heart Rate</span><strong>72 bpm</strong></div><em class="tag-ok">Normal</em></li>
-                <li><div><span>Body Temp</span><strong>36.8 °C</strong></div><em class="tag-ok">Normal</em></li>
-                <li><div><span>Oxygen Sat</span><strong>99%</strong></div><em class="tag-ok">Optimal</em></li>
+                <li><div><span>Reception</span><strong>{{ live.registered }} waiting</strong></div><em class="tag-ok">Registered</em></li>
+                <li><div><span>Triage pre-check</span><strong>{{ live.in_triage }} in progress</strong></div><em class="tag-ok">Nursing</em></li>
+                <li><div><span>Consultation</span><strong>{{ live.with_doctor }} with a doctor</strong></div><em class="tag-ok">Physician</em></li>
+                <li><div><span>Finished today</span><strong>{{ live.completed_today }} completed</strong></div><em class="tag-ok">Done</em></li>
               </ul>
             </div>
           </div>
 
           <div class="record__right panel panel--tint">
             <div class="record__right-head">
-              <h3>Consolidated Medical History &amp; Consultation Notes</h3>
-              <div class="seg"><span class="seg__item">All Visits</span><span class="seg__item seg__item--on">New Entry</span></div>
+              <h3>Latest Activity Across the Clinic</h3>
+              <div class="seg"><span class="seg__item seg__item--on">Live</span></div>
             </div>
+            {% for a in live.activity %}
             <article class="note">
-              <div class="note__top"><span class="note__label">TODAY - CONSULTATION</span><span class="note__time">10:15 AM</span></div>
-              <p>Patient presents with mild, dry cough for 3 days. No fever, clear lungs on auscultation. Pre-check vitals are stable. Prescribed local throat demulcents and hydration.</p>
+              <div class="note__top"><span class="note__label{% if a.style == 'green' %} note__label--teal{% endif %}">{{ a.badge }}</span><span class="note__time">{{ a.ago }}</span></div>
+              <p>{{ a.who }} {{ a.what }}.</p>
             </article>
-            <article class="note">
-              <div class="note__top"><span class="note__label note__label--teal">SEP 12, 2023 - LAB RESULTS</span><span class="note__time">Complete Blood Count</span></div>
-              <p>All parameters within reference range. Hemoglobin 13.8 g/dL. Platelets 220,000 /µL. File uploaded directly to permanent cloud vault.</p>
-            </article>
+            {% empty %}
+            <article class="note"><p>No activity yet. Sign in and register the first patient to see it appear here.</p></article>
+            {% endfor %}
           </div>
         </div>
       </div>
@@ -189,12 +189,13 @@
           </li>
         </ul>
 
-        <div class="audit" aria-label="Sample audit log">
-          <div class="audit__head"><span class="audit__title"><i class="dot"></i>LIVE AUDIT LOGS (PHI TRACK)</span><span class="audit__upd">Updated just now</span></div>
-          <div class="audit__row"><div><p><strong>Dr. Clara Henderson —</strong> Accessed Patient File</p><small>Target: Elizabeth Hughes · Timestamp: 11:42:01 AM</small></div><span class="status status--green">AUTHORIZED</span></div>
-          <div class="audit__row"><div><p><strong>Nurse David Lee —</strong> Updated Vitals / BP</p><small>Target: Elizabeth Hughes · Timestamp: 11:38:15 AM</small></div><span class="status status--blue">MODIFIED</span></div>
-          <div class="audit__row"><div><p><strong>Staff Admin Sarah Cole —</strong> Registered New Patient</p><small>Target: Thomas Vance · Timestamp: 11:15:30 AM</small></div><span class="status status--green">CREATED</span></div>
-          <div class="audit__row"><div><p><strong>System System Integration —</strong> Scheduled Data Backup</p><small>Target: Data Vault #4 · Timestamp: 10:55:12 AM</small></div><span class="status status--gray">SYSTEM</span></div>
+        <div class="audit" aria-label="Live audit log (anonymised)">
+          <div class="audit__head"><span class="audit__title"><i class="dot"></i>LIVE AUDIT LOG</span><span class="audit__upd">Updated {{ live.updated }}</span></div>
+          {% for a in live.activity %}
+          <div class="audit__row"><div><p><strong>{{ a.who }} —</strong> {{ a.what }}</p><small>{{ a.ago }} · names and patient details are only visible to signed-in staff</small></div><span class="status status--{{ a.style }}">{{ a.badge }}</span></div>
+          {% empty %}
+          <div class="audit__row"><div><p>No activity recorded yet.</p></div></div>
+          {% endfor %}
         </div>
       </div>
     </div>

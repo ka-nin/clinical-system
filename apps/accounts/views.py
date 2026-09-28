@@ -24,6 +24,12 @@ PENDING_2FA = "pending_2fa"
 PENDING_MINUTES = 5
 
 
+def landing(request):
+    from .public import snapshot
+
+    return render(request, "landing.html", {"live": snapshot()})
+
+
 class CareLoginView(LoginView):
     template_name = "login.html"
 
